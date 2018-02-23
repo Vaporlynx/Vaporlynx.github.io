@@ -160,7 +160,7 @@ const searchUnits = url => {
       const queryString = Object.keys(searchParams).reduce((queryString, key) => {
         return `${queryString}${key}=${searchParams[key]}`;
       }, "?");
-      currentRequests[url] = fetch(`http://masterunitlist.info/Unit/QuickList${queryString}`)
+      currentRequests[url] = fetch(`https://masterunitlist.info/Unit/QuickList${queryString}`)
         .then(request => request.text()).then(unParsed => JSON.parse(unParsed).Units).then(data => {
         for (const datum of data) {
           const unit = {
@@ -196,7 +196,7 @@ unitDBConnection.onsuccess = async event => {
   unitDB = event.target.result;
   // Prefetch most common units
   for (const unit of unitPreCache) {
-    const url = new URL(`http://internaldb/?name=${unit}`);
+    const url = new URL(`https://internaldb/?name=${unit}`);
     await searchUnits(url);
   }
 };
