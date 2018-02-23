@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>AS Hero!</title>
+
+</head>
+<body>
+    <style>
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: auto;
+            margin: 0;
+            font-family: Ubuntu, sans-serif;
+        }
+
+        #mechContainer {
+            display: flex;
+            flex-direction: column;
+            flex-wrap:wrap 
+        }
+        #mechContainer > * {
+            margin-top: 10px;
+        }
+
+        #mechName {
+            width: 40em;
+        }
+    </style>
+
+    <vpl-label prefix="Mech Name:">
+        <input type="text" id="mechName" slot="content"></input>
+    </vpl-label>
+    <div id="mechContainer"> </div>
+    <script type="module" src = "/src/components/pips.js"></script>
+    <script type="module" src = "/src/components/label.js"></script>
+    <script type="module" src = "/src/unitCard.js"></script>
+    <script type="module">
+        const handleError = err => {
+            console.log(err);
+        }
+        const mechNameElem = document.getElementById("mechName");
+        const mechContainerElem = document.getElementById("mechContainer");
+
+        navigator.serviceWorker.register("/dbServiceWorker.js").then(registration => {
+            console.log("Service worker spawned.");
+        }).catch(err => {
+            handleError(err);
+        });
+
+        mechNameElem.addEventListener("keypress", async event => {
+            if (event.key ===  "Enter") {
+                while (mechContainerElem.hasChildNodes()) {
+                    mechContainerElem.removeChild(mechContainerElem.lastChild);
+                }
+                try {
+                    const mechName = `${mechNameElem.value}`;
+                    const url = new URL("http://sw-units");
+                    url.searchParams.append("name", mechName);
+                    const unParsed = await window.fetch(url);
+                    const data = JSON.parse(await unParsed.text());
+                    for (const unit of data) {
+                        const card = document.createElement("unit-card");
+                        card.data = unit;
+                        mechContainerElem.appendChild(card);
+                    }
+                }
+                catch (err) {
+                    handleError(err);
+                }  
+            }
+        });
+    </script>
+</body>
+</html>
