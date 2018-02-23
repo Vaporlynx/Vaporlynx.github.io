@@ -56,7 +56,7 @@
                 }
                 try {
                     const mechName = `${mechNameElem.value}`;
-                    const url = new URL("http://sw-units");
+                    const url = new URL("https://sw-units");
                     url.searchParams.append("name", mechName);
                     const unParsed = await window.fetch(url);
                     const data = JSON.parse(await unParsed.text());
