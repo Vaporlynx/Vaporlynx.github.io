@@ -25,7 +25,7 @@
         }
 
         #mechName {
-            width: 40em;
+            width: 30em;
         }
 
         @keyframes spin {
@@ -60,7 +60,7 @@
     <script type="module" src = "/src/unitCard.js"></script>
     <script type="module">
         const handleError = err => {
-            console.log(err);
+            window.alert(err);
         };
         const mechNameElem = document.getElementById("mechName");
         const mechContainerElem = document.getElementById("mechContainer");
