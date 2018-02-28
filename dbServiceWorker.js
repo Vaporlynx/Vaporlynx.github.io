@@ -1,6 +1,6 @@
 let unitDB = null;
 let imageDB = null;
-const currentRequests = {};
+// TODO there doesn't seem to be any DS DA or MS in the MUL?
 const unitTypes = ["BM", "IM", "PM", "CV", "SV", "AF", "CF", "DS", "DA", "SC", "MS", "CI", "BA"];
 const validSearchParams = [
   "name",
@@ -8,7 +8,6 @@ const validSearchParams = [
   "minPV",
   "maxPV",
 ];
-const unitPreCache = ["atlas", "awesome", "catapult"];
 
 const unitDBConnection = indexedDB.open("unitDB", 1);
 unitDBConnection.onerror = event => {
@@ -67,7 +66,6 @@ const setImage = (url,  data) => {
     }
   });
 };
-
 
 const getUnits = type => {
   return new Promise((resolve, reject) => {
@@ -134,11 +132,9 @@ const searchUnits = url => {
   }
   return new Promise(async (resolve, reject) => {
     const results = [];
-    let unitsSearched = 0;
     for (const type of searchParams.types || unitTypes) {
       const units = await getUnits(type);
       for (const unit of units) {
-        unitsSearched++;
         let valid = true;
         if (searchParams.name && !unit.name.toLowerCase().includes(searchParams.name)) {
           valid = false;
@@ -154,50 +150,72 @@ const searchUnits = url => {
         }
       }
     }
-    console.log(`UnitsSearched: ${unitsSearched}`);
     const response = new Response(JSON.stringify(results));
     resolve(response);
-      const queryString = Object.keys(searchParams).reduce((queryString, key) => {
-        return `${queryString}${key}=${searchParams[key]}`;
-      }, "?");
-      currentRequests[url] = fetch(`https://masterunitlist.info/Unit/QuickList${queryString}`)
-        .then(request => request.text()).then(unParsed => JSON.parse(unParsed).Units).then(data => {
-        for (const datum of data) {
-          const unit = {
-            name: datum.Name,
-            pv: datum.BFPointValue,
-            armor: datum.BFArmor,
-            structure: datum.BFStructure,
-            damage: {
-              short: datum.BFDamageShort,
-              medium: datum.BFDamageMedium,
-              long: datum.BFDamageLong,
-            },
-            movement: datum.BFMove,
-            image: datum.ImageUrl,
-            type: datum.BFType,
-            size: datum.BFSize,
-            role: datum.Role.Name,
-            skill: datum.Skill || 4,
-            special: datum.BFAbilities,
-            class: datum.Class,
-            variant: datum.Variant,
-          };
-          // Base omnimechs have no type for some reason
-          if (unit.type !== null) {
-            setUnit(unit.type, unit);
-          }
-        }
-      });
+    // Don't sync with MUL it is not HTTPS
+    // const queryString = Object.keys(searchParams).reduce((queryString, key) => {
+    //   return `${queryString}${key}=${searchParams[key]}`;
+    // }, "?");
+    // currentRequests[url] = fetch(`http://masterunitlist.info/Unit/QuickList${queryString}`)
+    //   .then(request => request.text()).then(unParsed => JSON.parse(unParsed).Units).then(data => {
+    //   for (const datum of data) {
+    //     const unit = {
+    //       name: datum.Name,
+    //       pv: datum.BFPointValue,
+    //       armor: datum.BFArmor,
+    //       structure: datum.BFStructure,
+    //       damage: {
+    //         short: datum.BFDamageShort,
+    //         medium: datum.BFDamageMedium,
+    //         long: datum.BFDamageLong,
+    //       },
+    //       movement: datum.BFMove,
+    //       image: datum.ImageUrl,
+    //       type: datum.BFType,
+    //       size: datum.BFSize,
+    //       role: datum.Role.Name,
+    //       skill: datum.Skill || 4,
+    //       special: datum.BFAbilities,
+    //       class: datum.Class,
+    //       variant: datum.Variant,
+    //     };
+        //  setUnit(unit.type, unit);
+    //   }
+    // });
   });
 };
 
-unitDBConnection.onsuccess = async event => {
+unitDBConnection.onsuccess = event => {
   unitDB = event.target.result;
-  // Prefetch most common units
-  for (const unit of unitPreCache) {
-    const url = new URL(`https://internaldb/?name=${unit}`);
-    await searchUnits(url);
+  for (const type of unitTypes) {
+    fetch(`/defs/${type}-def.json`).then(request => request.text()).then(unParsed => JSON.parse(unParsed)).then(data => {
+      for (const key of Object.keys(data)) {
+        const datum = data[key];
+        const unit = {
+          name: datum.nm,
+          pv: datum.pv,
+          armor: datum.ar,
+          structure: datum.st,
+          damage: {
+            short: datum.da.s,
+            medium: datum.da.m,
+            long: datum.da.l,
+          },
+          movement: datum.mv,
+          image: datum.img,
+          type: datum.tp,
+          size: datum.sz,
+          role: datum.rl,
+          skill: 4,
+          special: datum.spc,
+          class: datum.cl,
+          variant: datum.vnt,
+        };
+        setUnit(unit.type, unit);
+      }
+    }).catch(err => {
+      console.log(`Failed to get bundled def for type ${type}`);
+    });
   }
 };
 
