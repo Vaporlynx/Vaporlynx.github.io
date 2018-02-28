@@ -44,7 +44,7 @@
         const mechContainerElem = document.getElementById("mechContainer");
 
         navigator.serviceWorker.register("/dbServiceWorker.js").then(registration => {
-            console.log("Service worker spawned.");
+            console.log(`Service worker spawned on ${registration.scope}`);
         }).catch(err => {
             handleError(err);
         });
