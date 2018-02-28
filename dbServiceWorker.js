@@ -228,10 +228,10 @@ self.addEventListener("fetch", event => {
   if (url.pathname === "/Unit/QuickList") {
     event.respondWith(serveOrFetch(event.request));
   }
-  else if (url.hostname === "sw-units") {
+  else if (url.pathname === "/sw-units") {
     event.respondWith(searchUnits(url));
   }
-  else if (url.hostname === "sw-images") {
+  else if (url.pathname === "/sw-images") {
     event.respondWith(searchUnits(url));
   }
 });

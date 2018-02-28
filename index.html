@@ -56,9 +56,7 @@
                 }
                 try {
                     const mechName = `${mechNameElem.value}`;
-                    const url = new URL("https://sw-units");
-                    url.searchParams.append("name", mechName);
-                    const unParsed = await window.fetch(url);
+                    const unParsed = await window.fetch(`/sw-units?name=${mechName}`);
                     const data = JSON.parse(await unParsed.text());
                     for (const unit of data) {
                         const card = document.createElement("unit-card");
