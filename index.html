@@ -27,10 +27,32 @@
         #mechName {
             width: 40em;
         }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(-360deg);
+            }
+        }
+
+        #spinner {
+            animation: spin 1500ms linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #spinner.show {
+            opacity: 0.8;
+        }
     </style>
 
     <vpl-label prefix="Mech Name:">
-        <input type="text" id="mechName" slot="content"></input>
+        <div slot="content">
+            <input type="text" id="mechName"></input>
+            <img src="/assets/spinner.svg" id="spinner"></img>
+        </div>
     </vpl-label>
     <div id="mechContainer"> </div>
     <script type="module" src = "/src/components/pips.js"></script>
@@ -39,9 +61,10 @@
     <script type="module">
         const handleError = err => {
             console.log(err);
-        }
+        };
         const mechNameElem = document.getElementById("mechName");
         const mechContainerElem = document.getElementById("mechContainer");
+        const spinnerElem = document.getElementById("spinner");
 
         navigator.serviceWorker.register("/dbServiceWorker.js").then(registration => {
             console.log(`Service worker spawned on ${registration.scope}`);
@@ -51,12 +74,14 @@
 
         mechNameElem.addEventListener("keypress", async event => {
             if (event.key ===  "Enter") {
+                spinnerElem.classList.add("show");
                 while (mechContainerElem.hasChildNodes()) {
                     mechContainerElem.removeChild(mechContainerElem.lastChild);
                 }
                 try {
                     const mechName = `${mechNameElem.value}`;
                     const unParsed = await window.fetch(`/sw-units?name=${mechName}`);
+                    spinnerElem.classList.remove("show");
                     const data = JSON.parse(await unParsed.text());
                     for (const unit of data) {
                         const card = document.createElement("unit-card");
