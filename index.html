@@ -73,7 +73,7 @@
         const spinnerElem = document.getElementById("spinner");
 
         navigator.serviceWorker.register("/dbServiceWorker.js").then(registration => {
-            console.log(`Service worker spawned on ${registration.scope}`);
+            handleError(`Service worker spawned on ${registration.scope}`);
         }).catch(err => {
             handleError(err);
         });
@@ -101,7 +101,7 @@
         };
 
         if (router.getParams()["unitName"]) {
-            searchUnit(router.consumeParams(["unitName"])["unitName"]);
+            searchUnit(mechNameElem.value = router.consumeParams(["unitName"])["unitName"]);
         }
 
         mechNameElem.addEventListener("keypress", async event => {
