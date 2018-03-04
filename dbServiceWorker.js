@@ -213,6 +213,7 @@ const searchUnits = url => {
 unitDBConnection.onsuccess = event => {
   unitDB = event.target.result;
   for (const type of unitTypes) {
+      handleError(`Fetching bundled def for type ${type}`);
     fetch(`/defs/${type}-def.json`).then(request => request.text()).then(unParsed => JSON.parse(unParsed)).then(data => {
       handleError(`Got bundled def for type ${type}`);
       for (const key of Object.keys(data)) {
