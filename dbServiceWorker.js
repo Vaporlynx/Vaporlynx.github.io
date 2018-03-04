@@ -214,6 +214,7 @@ unitDBConnection.onsuccess = event => {
   unitDB = event.target.result;
   for (const type of unitTypes) {
     fetch(`/defs/${type}-def.json`).then(request => request.text()).then(unParsed => JSON.parse(unParsed)).then(data => {
+      handleError(`Got bundled def for type ${type}`);
       for (const key of Object.keys(data)) {
         const datum = data[key];
         const unit = {
