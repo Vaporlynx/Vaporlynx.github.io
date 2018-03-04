@@ -24,8 +24,11 @@
             margin-top: 10px;
         }
 
-        #mechName {
-            width: 30em;
+
+        #searchContainer {
+            height: 22px;
+            width: 180px;
+            display: flex;
         }
 
         @keyframes spin {
@@ -49,7 +52,7 @@
     </style>
 
     <vpl-label prefix="Mech Name:">
-        <div slot="content">
+        <div slot="content" id="searchContainer">
             <input type="text" id="mechName"></input>
             <img src="/assets/spinner.svg" id="spinner"></img>
         </div>
@@ -58,7 +61,10 @@
     <script type="module" src = "/src/components/pips.js"></script>
     <script type="module" src = "/src/components/label.js"></script>
     <script type="module" src = "/src/unitCard.js"></script>
+    <script type="module" src = "/src/router.js"></script>
     <script type="module">
+        import * as router from "../src/router.js";
+
         const handleError = err => {
             window.alert(err);
         };
@@ -72,26 +78,35 @@
             handleError(err);
         });
 
+        const searchUnit = async name => {
+            spinnerElem.classList.add("show");
+            while (mechContainerElem.hasChildNodes()) {
+                mechContainerElem.removeChild(mechContainerElem.lastChild);
+            }
+            try {
+                const unitName = name;
+                router.setParams({unitName});
+                const unParsed = await window.fetch(`/sw-units?name=${unitName}`);
+                spinnerElem.classList.remove("show");
+                const data = JSON.parse(await unParsed.text());
+                for (const unit of data) {
+                    const card = document.createElement("unit-card");
+                    card.data = unit;
+                    mechContainerElem.appendChild(card);
+                }
+            }
+            catch (err) {
+                handleError(`Error getting unit: ${err}`);
+            }  
+        };
+
+        if (router.getParams()["unitName"]) {
+            searchUnit(router.consumeParams(["unitName"])["unitName"]);
+        }
+
         mechNameElem.addEventListener("keypress", async event => {
             if (event.key ===  "Enter") {
-                spinnerElem.classList.add("show");
-                while (mechContainerElem.hasChildNodes()) {
-                    mechContainerElem.removeChild(mechContainerElem.lastChild);
-                }
-                try {
-                    const mechName = `${mechNameElem.value}`;
-                    const unParsed = await window.fetch(`/sw-units?name=${mechName}`);
-                    spinnerElem.classList.remove("show");
-                    const data = JSON.parse(await unParsed.text());
-                    for (const unit of data) {
-                        const card = document.createElement("unit-card");
-                        card.data = unit;
-                        mechContainerElem.appendChild(card);
-                    }
-                }
-                catch (err) {
-                    handleError(`Error getting unit: ${err}`);
-                }  
+                searchUnit(mechNameElem.value);
             }
         });
     </script>

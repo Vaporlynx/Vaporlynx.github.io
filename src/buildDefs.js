@@ -12,6 +12,7 @@ const getUnits = async () => {
     const searchByString = searchString => {
         return new Promise(async (resolve, reject) => {
             const workingString = `${searchString}`;
+            // TODO: look into bug with the request library, it looks like its hitting a timeout then vomiting everywhere
             const unParsed = await request(`http://masterunitlist.info/Unit/QuickList?name=${workingString}`);
             const parsed = JSON.parse(unParsed);
             let totalFound = parsed.Units.length;
@@ -19,6 +20,7 @@ const getUnits = async () => {
                 console.log(`${workingString} returned ${parsed.Units.length} results`);
                 for (const Unit of parsed.Units) {
                     const unit = {
+                        id: Unit.Id,
                         nm: Unit.Name,
                         pv: Unit.BFPointValue,
                         ar: Unit.BFArmor,
@@ -50,30 +52,50 @@ const getUnits = async () => {
                 }
                 resolve(totalFound);
             }
-
+            else {
+                resolve(0);
+            }
         });
     };
-
-    try {
-        console.log(`Searching, started at ${new Date().toString()}`);
-        await Promise.all([
-            searchByString("a"),
-            searchByString("e"),
-            searchByString("i"),
-            searchByString("o"),
-            searchByString("u"),
-            searchByString("y"),
-        ])
-        console.log(`Searching, finished at ${new Date().toString()}`);
-        for (const key of Object.keys(unitsByType)) {
-            const units = unitsByType[key];
-            await write(`../defs/${key}-def.json`, JSON.stringify(units));
+    console.log(`Searching, started at ${new Date().toString()}`);
+    const words = [];
+    for (const vowel of ["a", "e", "i", "o", "u", "y"]) {
+        for (const letter of letters) {
+            words.push(`${vowel}${letter}`);
         }
-        console.log(`Finished writing defs at ${new Date().toString()}`);
     }
-    catch (err) {
-        console.log(`Search failed: ${err}`);
-    }
+    const queryQueue = [];
+    const manageQueue = () => {
+        if (words.length) {
+            if (queryQueue.length <= 10) {
+                const word = words.pop();
+                queryQueue.push(word);
+                searchByString(word).then(() => {
+                    queryQueue.splice(queryQueue.indexOf(word), 1);
+                }).catch(err => {
+                    console.log(`Search failed for: ${word}, err: ${err}`);
+                    queryQueue.splice(queryQueue.indexOf(word), 1);
+                });
+            }
+        }
+        else if (queryQueue.length === 0) {
+            return;
+        }
+        setTimeout(async () => {
+            if (words.length || queryQueue.length) {
+                manageQueue();
+            }
+            else {
+                console.log(`Searching, finished at ${new Date().toString()}`);
+                for (const key of Object.keys(unitsByType)) {
+                    const units = unitsByType[key];
+                    await write(`${__dirname}/../defs/${key}-def.json`, JSON.stringify(units));
+                }
+                console.log(`Finished writing defs at ${new Date().toString()}`);
+            }
+        }, 1000);
+    };
+    manageQueue();
 };
 
 setTimeout(() => {

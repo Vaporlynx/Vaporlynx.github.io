@@ -9,9 +9,13 @@ const validSearchParams = [
   "maxPV",
 ];
 
+const handleError = err => {
+  console.log(err);
+};
+
 const unitDBConnection = indexedDB.open("unitDB", 1);
 unitDBConnection.onerror = event => {
-  console.log("error opening unitDB");
+  handleError("error opening unitDB");
 };
 
 unitDBConnection.onupgradeneeded = event => {
@@ -22,7 +26,7 @@ unitDBConnection.onupgradeneeded = event => {
 
 const imageDBConnection = indexedDB.open("imageDB", 1);
 imageDBConnection.onerror = event => {
-  console.log("error opening imageDB");
+  handleError("error opening imageDB");
 };
 
 imageDBConnection.onupgradeneeded = event => {
@@ -106,7 +110,7 @@ const setUnit = (type,  data) => {
 const serveOrFetch = request => {
   const url = new URL(request.url);
   fetch(url).then(response => response.blob()).then(blob => URL.createObjectURL(blob)).then(data => {
-    console.log("data?");
+    handleError("data?");
   });
   return new Promise(async (resolve, reject) => {
     const cachedData = await caches.match(request);
@@ -123,26 +127,34 @@ const serveOrFetch = request => {
 };
 
 const searchUnits = url => {
-  const searchParams = {};
+  const searchParams = {ids: []};
   for (const key of validSearchParams) {
     const value = url.searchParams.get(key);
-    if (value) {
-      searchParams[key] = value;
+    if (key === "id") {
+      searchParams.ids.push(value);
+    }
+    else {
+      if (value) {
+        searchParams[key] = value;
+      }
     }
   }
   return new Promise(async (resolve, reject) => {
-    const results = [];
+    let results = [];
     for (const type of searchParams.types || unitTypes) {
       const units = await getUnits(type);
       for (const unit of units) {
         let valid = true;
-        if (searchParams.name && !unit.name.toLowerCase().includes(searchParams.name)) {
+        if (valid && searchParams.ids.length && !searchParams.ids.includes(unit.id)) {
           valid = false;
         }
-        if (searchParams.minPV && unit.pv <= searchParams.minPV) {
+        if (valid && searchParams.name && !unit.name.toLowerCase().includes(searchParams.name)) {
           valid = false;
         }
-        if (searchParams.maxPV && unit.pv >= searchParams.maxPV) {
+        if (valid && searchParams.minPV && unit.pv <= searchParams.minPV) {
+          valid = false;
+        }
+        if (valid && searchParams.maxPV && unit.pv >= searchParams.maxPV) {
           valid = false;
         }
         if (valid) {
@@ -150,16 +162,29 @@ const searchUnits = url => {
         }
       }
     }
+    if (searchParams.ids.length) {
+      const resultsCopy = results;
+      results = [];
+      for (const id of searchParams.ids) {
+        results.push(resultsCopy.find(i => i.id = id));
+      }
+    }
     const response = new Response(JSON.stringify(results));
     resolve(response);
     // Don't sync with MUL it is not HTTPS
     // const queryString = Object.keys(searchParams).reduce((queryString, key) => {
-    //   return `${queryString}${key}=${searchParams[key]}`;
+    //   if (key === "ids") {
+    //     return queryString;
+    //   }
+    //   else {
+    //     return `${queryString}${key}=${searchParams[key]}`;
+    //   }
     // }, "?");
-    // currentRequests[url] = fetch(`http://masterunitlist.info/Unit/QuickList${queryString}`)
+    // fetch(`http://masterunitlist.info/Unit/QuickList${queryString}`)
     //   .then(request => request.text()).then(unParsed => JSON.parse(unParsed).Units).then(data => {
     //   for (const datum of data) {
     //     const unit = {
+    //       id: datum.Id,
     //       name: datum.Name,
     //       pv: datum.BFPointValue,
     //       armor: datum.BFArmor,
@@ -179,9 +204,9 @@ const searchUnits = url => {
     //       class: datum.Class,
     //       variant: datum.Variant,
     //     };
-        //  setUnit(unit.type, unit);
+    //     setUnit(unit.type || "null", unit);
     //   }
-    // });
+    // }).catch(console.log);
   });
 };
 
@@ -214,7 +239,7 @@ unitDBConnection.onsuccess = event => {
         setUnit(unit.type, unit);
       }
     }).catch(err => {
-      console.log(`Failed to get bundled def for type ${type}`);
+      handleError(`Failed to get bundled def for type ${type}`);
     });
   }
 };

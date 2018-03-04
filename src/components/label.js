@@ -3,8 +3,17 @@ template.innerHTML = `
     <style>
         :host {
             display: flex;
+            --margin: 5px;
         }
         #pipsContainer {
+        }
+
+        #prefix {
+            margin-right: var(--margin);
+        }
+
+        #suffix {
+            margin-left: var(--margin);
         }
     </style>
     <div id="prefix"></div>
