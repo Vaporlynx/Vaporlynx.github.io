@@ -148,7 +148,7 @@ const searchUnits = url => {
         if (valid && searchParams.ids.length && !searchParams.ids.includes(unit.id)) {
           valid = false;
         }
-        if (valid && searchParams.name && !unit.name.toLowerCase().includes(searchParams.name)) {
+        if (valid && searchParams.name && !unit.name.toLowerCase().includes(searchParams.name.toLowerCase())) {
           valid = false;
         }
         if (valid && searchParams.minPV && unit.pv <= searchParams.minPV) {
