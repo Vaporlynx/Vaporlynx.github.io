@@ -14,101 +14,33 @@
             margin: 0;
             font-family: Ubuntu, sans-serif;
         }
-
-        #mechContainer {
-            display: flex;
-            flex-direction: column;
-            flex-wrap:wrap 
-        }
-        #mechContainer > * {
-            margin-top: 10px;
-        }
-
-
-        #searchContainer {
-            height: 22px;
-            width: 180px;
-            display: flex;
-        }
-
-        @keyframes spin {
-            from {
-                transform: rotate(0deg);
-            }
-            to {
-                transform: rotate(-360deg);
-            }
-        }
-
-        #spinner {
-            animation: spin 1500ms linear infinite;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        #spinner.show {
-            opacity: 0.8;
-        }
     </style>
-
-    <vpl-label prefix="Mech Name:">
-        <div slot="content" id="searchContainer">
-            <input type="text" id="mechName"></input>
-            <img src="/assets/spinner.svg" id="spinner"></img>
-        </div>
-    </vpl-label>
-    <div id="mechContainer"> </div>
     <script type="module" src = "/src/components/pips.js"></script>
     <script type="module" src = "/src/components/label.js"></script>
-    <script type="module" src = "/src/unitCard.js"></script>
+    <script type="module" src = "/src/components/unitCard.js"></script>
     <script type="module" src = "/src/router.js"></script>
+    <script type="module" src = "/src/pages/search.js"></script>
+    <div id="pageContainer">
+            <search-page></search-page>
+    </div>
     <script type="module">
         import * as router from "../src/router.js";
-
-        const handleError = err => {
-            window.alert(err);
+        const globals = {
+            handleError: err => {
+                window.alert(err);
+            },
         };
-        const mechNameElem = document.getElementById("mechName");
-        const mechContainerElem = document.getElementById("mechContainer");
-        const spinnerElem = document.getElementById("spinner");
 
         navigator.serviceWorker.register("/dbServiceWorker.js").then(registration => {
-            handleError(`Service worker spawned on ${registration.scope}`);
+            globals.handleError(`Service worker spawned on ${registration.scope}`);
         }).catch(err => {
-            handleError(err);
+            globals.handleError(err);
+        });
+        
+        window.addEventListener("hashchange", () => {
+           router.getParams;
         });
 
-        const searchUnit = async name => {
-            spinnerElem.classList.add("show");
-            while (mechContainerElem.hasChildNodes()) {
-                mechContainerElem.removeChild(mechContainerElem.lastChild);
-            }
-            try {
-                const unitName = name;
-                router.setParams({unitName});
-                const unParsed = await window.fetch(`/sw-units?name=${unitName}`);
-                spinnerElem.classList.remove("show");
-                const data = JSON.parse(await unParsed.text());
-                for (const unit of data) {
-                    const card = document.createElement("unit-card");
-                    card.data = unit;
-                    mechContainerElem.appendChild(card);
-                }
-            }
-            catch (err) {
-                handleError(`Error getting unit: ${err}`);
-            }  
-        };
-
-        if (router.getParams()["unitName"]) {
-            searchUnit(mechNameElem.value = router.consumeParams(["unitName"])["unitName"]);
-        }
-
-        mechNameElem.addEventListener("keypress", async event => {
-            if (event.key ===  "Enter") {
-                searchUnit(mechNameElem.value);
-            }
-        });
     </script>
 </body>
 </html>
