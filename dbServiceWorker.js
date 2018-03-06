@@ -213,6 +213,7 @@ const searchUnits = url => {
 };
 
 unitDBConnection.onsuccess = event => {
+  self.clients.claim();
   unitDB = event.target.result;
   for (const type of unitTypes) {
       handleError(`Fetching bundled def for type ${type}`);
