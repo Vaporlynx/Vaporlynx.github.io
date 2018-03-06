@@ -33,7 +33,9 @@ loadingPage.addEventListener("loaded", ()=> {
     if (initialParams.page === "loading") {
         initialParams.page = "search";
     }
-    urlHelper.setParams(initialParams);
+    setTimeout(() => {
+        urlHelper.setParams(initialParams);
+    }, 1);
 });
 pageContainerElem.appendChild(loadingPage);
 
