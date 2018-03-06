@@ -2,11 +2,13 @@ let unitDB = null;
 let imageDB = null;
 // TODO there doesn't seem to be any DS DA or MS in the MUL?
 const unitTypes = ["BM", "IM", "PM", "CV", "SV", "AF", "CF", "DS", "DA", "SC", "MS", "CI", "BA"];
+const loadedTypes = [];
 const validSearchParams = [
   "name",
   "type",
   "minPV",
   "maxPV",
+  "unitIds",
 ];
 
 const handleError = err => {
@@ -130,11 +132,11 @@ const searchUnits = url => {
   const searchParams = {ids: []};
   for (const key of validSearchParams) {
     const value = url.searchParams.get(key);
-    if (key === "id") {
-      searchParams.ids.push(value);
-    }
-    else {
-      if (value) {
+    if (value) {
+      if (key === "unitIds") {
+        searchParams.ids.push(value);
+      }
+      else {
         searchParams[key] = value;
       }
     }
@@ -214,7 +216,7 @@ unitDBConnection.onsuccess = event => {
   unitDB = event.target.result;
   for (const type of unitTypes) {
       handleError(`Fetching bundled def for type ${type}`);
-    fetch(`/defs/${type}-def.json`).then(request => request.text()).then(unParsed => JSON.parse(unParsed)).then(data => {
+    fetch(`/defs/${type}-def.json`).then(request => request.text()).then(unParsed => JSON.parse(unParsed)).then(async data => {
       handleError(`Got bundled def for type ${type}`);
       for (const key of Object.keys(data)) {
         const datum = data[key];
@@ -238,9 +240,11 @@ unitDBConnection.onsuccess = event => {
           class: datum.cl,
           variant: datum.vnt,
         };
-        setUnit(unit.type, unit);
+        await setUnit(unit.type, unit);
       }
+      loadedTypes.push(type);
     }).catch(err => {
+      loadedTypes.push(type);
       handleError(`Failed to get bundled def for type ${type}`);
     });
   }
@@ -260,5 +264,8 @@ self.addEventListener("fetch", event => {
   }
   else if (url.pathname === "/sw-images") {
     event.respondWith(searchUnits(url));
+  }
+  else if (url.pathname === "/sw-loadStatus") {
+    event.respondWith(new Response(`${loadedTypes.length / unitTypes.length}`));
   }
 });
