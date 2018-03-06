@@ -3,6 +3,10 @@ import * as urlHelper from "../../src/urlHelper.js";
 const template = document.createElement("template");
 template.innerHTML = `
     <style>
+        :host {
+            font-size: 16px;
+        }
+    
         #mechContainer {
             display: flex;
             flex-direction: column;
@@ -15,8 +19,15 @@ template.innerHTML = `
 
         #searchContainer {
             height: 22px;
-            width: 180px;
+            width: 50%;
             display: flex;
+        }
+        #searchContainer>* {
+            font-size: 24px;
+        }
+
+        #label {
+            font-size: 24px;
         }
 
         @keyframes spin {
@@ -37,11 +48,16 @@ template.innerHTML = `
         #spinner.show {
             opacity: 0.8;
         }
+
+        #unitName {
+            width: 100%;
+            height: 100%;
+        }
     </style>
 
-    <vpl-label prefix="Mech Name:">
+    <vpl-label prefix="Mech Name:" id="label">
     <div slot="content" id="searchContainer">
-        <input type="text" id="mechName"></input>
+        <input type="text" id="unitName"></input>
         <img src="/assets/spinner.svg" id="spinner"></img>
     </div>
     </vpl-label>
@@ -61,20 +77,20 @@ export default class searchPage extends HTMLElement {
 
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
 
-        this.mechNameElem = this.shadowRoot.getElementById("mechName");
+        this.unitNameElem = this.shadowRoot.getElementById("unitName");
         this.mechContainerElem = this.shadowRoot.getElementById("mechContainer");
         this.spinnerElem = this.shadowRoot.getElementById("spinner");
 
-        this.mechNameElem.addEventListener("keypress", async event => {
+        this.unitNameElem.addEventListener("keypress", async event => {
             if (event.key ===  "Enter") {
-                this.searchUnit(this.mechNameElem.value);
+                this.searchUnit(this.unitNameElem.value);
             }
         });
     }
 
     connectedCallback() {
         if (urlHelper.getParams().unitName) {
-            this.searchUnit(this.mechNameElem.value = urlHelper.consumeParams(["unitName"]).unitName);
+            this.searchUnit(this.unitNameElem.value = urlHelper.consumeParams(["unitName"]).unitName);
         }
     }
 
