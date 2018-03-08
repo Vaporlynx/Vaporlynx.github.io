@@ -11,49 +11,61 @@ const getUnits = async () => {
 
     const searchByString = searchString => {
         return new Promise(async (resolve, reject) => {
+            let completed = false;
+            setTimeout(() => {
+                if (!completed) {
+                    reject("TIMEOUT_REACHED");
+                }
+            }, 60000);
             const workingString = `${searchString}`;
-            // TODO: look into bug with the request library, it looks like its hitting a timeout then vomiting everywhere
-            const unParsed = await request(`http://masterunitlist.info/Unit/QuickList?name=${workingString}`);
-            const parsed = JSON.parse(unParsed);
-            let totalFound = parsed.Units.length;
-            if (parsed && parsed.Units) {
-                console.log(`${workingString} returned ${parsed.Units.length} results`);
-                for (const Unit of parsed.Units) {
-                    const unit = {
-                        id: Unit.Id,
-                        nm: Unit.Name,
-                        pv: Unit.BFPointValue,
-                        ar: Unit.BFArmor,
-                        st: Unit.BFStructure,
-                        da: {
-                            s: Unit.BFDamageShort,
-                            m: Unit.BFDamageMedium,
-                            l: Unit.BFDamageLong,
-                        },
-                        mv: Unit.BFMove,
-                        img: Unit.ImageUrl,
-                        tp: Unit.BFType,
-                        sz: Unit.BFSize,
-                        rl: Unit.Role.Name,
-                        spc: Unit.BFAbilities,
-                        cl: Unit.Class,
-                        vnt: Unit.Variant,
-                    };
-                    if (!unitsByType[unit.tp]) {
-                        unitsByType[unit.tp] = {};
+            try {
+                 // TODO: look into bug with the request library, it looks like its hitting a timeout then vomiting everywhere
+                const unParsed = await request(`http://masterunitlist.info/Unit/QuickList?name=${workingString}`);
+                completed = true;
+                const parsed = JSON.parse(unParsed);
+                let totalFound = parsed.Units.length;
+                if (parsed && parsed.Units) {
+                    console.log(`${workingString} returned ${parsed.Units.length} results`);
+                    for (const Unit of parsed.Units) {
+                        const unit = {
+                            id: Unit.Id,
+                            nm: Unit.Name,
+                            pv: Unit.BFPointValue,
+                            ar: Unit.BFArmor,
+                            st: Unit.BFStructure,
+                            da: {
+                                s: Unit.BFDamageShort,
+                                m: Unit.BFDamageMedium,
+                                l: Unit.BFDamageLong,
+                            },
+                            mv: Unit.BFMove,
+                            img: Unit.ImageUrl,
+                            tp: Unit.BFType,
+                            sz: Unit.BFSize,
+                            rl: Unit.Role.Name,
+                            spc: Unit.BFAbilities,
+                            cl: Unit.Class,
+                            vnt: Unit.Variant,
+                        };
+                        if (!unitsByType[unit.tp]) {
+                            unitsByType[unit.tp] = {};
+                        }
+                        unitsByType[unit.tp][unit.nm] = unit;
                     }
-                    unitsByType[unit.tp][unit.nm] = unit;
-                }
-                // Need to dig deeper!
-                if (totalFound > 99) {
-                    for (const letter of letters) {
-                        totalFound += await searchByString(`${searchString}${letter}`);
+                    // Need to dig deeper!
+                    if (totalFound > 99) {
+                        for (const letter of letters) {
+                            totalFound += await searchByString(`${searchString}${letter}`);
+                        }
                     }
+                    resolve(totalFound);
                 }
-                resolve(totalFound);
+                else {
+                    resolve(0);
+                }
             }
-            else {
-                resolve(0);
+            catch (err) {
+                reject(err);
             }
         });
     };
@@ -67,14 +79,15 @@ const getUnits = async () => {
     const queryQueue = [];
     const manageQueue = () => {
         if (words.length) {
-            if (queryQueue.length <= 10) {
+            if (queryQueue.length < 10) {
                 const word = words.pop();
                 queryQueue.push(word);
-                searchByString(word).then(() => {
-                    queryQueue.splice(queryQueue.indexOf(word), 1);
-                }).catch(err => {
+                searchByString(word).then(() => queryQueue.splice(queryQueue.indexOf(word), 1)).catch(err => {
                     console.log(`Search failed for: ${word}, err: ${err}`);
                     queryQueue.splice(queryQueue.indexOf(word), 1);
+                    setTimeout(() => {
+                        words.push(word);
+                    }, 100);
                 });
             }
         }

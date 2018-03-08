@@ -108,12 +108,22 @@ export default class searchPage extends HTMLElement {
             for (const unit of data) {
                 const card = document.createElement("unit-card");
                 card.data = unit;
+                card.addEventListener("click", () => {
+                    this.addUnit(card.data.id);
+                });
                 this.mechContainerElem.appendChild(card);
             }
         }
         catch (err) {
             global.handleError(`Error getting unit: ${err}`);
         }
+    }
+
+    addUnit(id) {
+        const params = urlHelper.getParams();
+        const unitIds = params.unitIds ? params.unitIds.split(",") : [];
+        unitIds.push(id);
+        urlHelper.setParams({unitIds: unitIds.join(",")});
     }
 }
 

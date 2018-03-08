@@ -134,7 +134,7 @@ const searchUnits = url => {
     const value = url.searchParams.get(key);
     if (value) {
       if (key === "unitIds") {
-        searchParams.ids.push(value);
+        searchParams.ids = value.split(",").map(i => parseInt(i));
       }
       else {
         searchParams[key] = value;
@@ -142,10 +142,12 @@ const searchUnits = url => {
     }
   }
   return new Promise(async (resolve, reject) => {
+    let unitsSearched = 0;
     let results = [];
     for (const type of searchParams.types || unitTypes) {
       const units = await getUnits(type);
       for (const unit of units) {
+        unitsSearched++;
         let valid = true;
         if (valid && searchParams.ids.length && !searchParams.ids.includes(unit.id)) {
           valid = false;
@@ -167,9 +169,9 @@ const searchUnits = url => {
     if (searchParams.ids.length) {
       const resultsCopy = results;
       results = [];
-      for (const id of searchParams.ids) {
-        results.push(resultsCopy.find(i => i.id = id));
-      }
+      searchParams.ids.map(id => {
+        results.push(resultsCopy.find(i => i.id === id));
+      });
     }
     const response = new Response(JSON.stringify(results));
     resolve(response);
@@ -222,6 +224,7 @@ unitDBConnection.onsuccess = event => {
       for (const key of Object.keys(data)) {
         const datum = data[key];
         const unit = {
+          id: datum.id,
           name: datum.nm,
           pv: datum.pv,
           armor: datum.ar,

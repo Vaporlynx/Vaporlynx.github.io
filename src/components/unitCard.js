@@ -297,7 +297,7 @@ export default class UnitCard extends HTMLElement {
     }
 
     get data () {
-        return this.data;
+        return this._data;
     }
 }
 
