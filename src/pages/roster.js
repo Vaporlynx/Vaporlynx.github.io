@@ -3,12 +3,28 @@ import * as urlHelper from "../../src/urlHelper.js";
 const template = document.createElement("template");
 template.innerHTML = `
     <style>
+        :host {
+            display: grid;
+            grid-template: 32px / 1fr;
+            grid-template-areas: "controls"
+                                "roster";
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #controls {
+            grid-area: controls;
+            display: flex;
+        }
+
         #roster {
             display: flex;
             width: 100vw;
             height: 100vh;
             overflow: auto;
             flex-wrap: wrap;
+            grid-area: roster;
         }
 
         #roster > unit-card {
@@ -16,6 +32,9 @@ template.innerHTML = `
         }
     </style>
 
+    <div id="controls">
+        <button id="search">Search</button>
+    </div>
     <div id="roster"> </div>
 `;
 
@@ -33,11 +52,26 @@ export default class rosterPage extends HTMLElement {
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
 
         this.rosterElem = this.shadowRoot.getElementById("roster");
-
-        window.addEventListener("urlUpdated", async event => {
+        this.handleUrlUpdated = event => {
             this.buildRoster(this.getIdsFromUrl());
-        });
+        };
         this.buildRoster(this.getIdsFromUrl());
+
+
+        this.searchElem = this.shadowRoot.getElementById("search");
+        this.searchElem.addEventListener("pointerdown", event => {
+            urlHelper.setParams({
+                page: "search",
+            });
+        });
+    }
+    
+    connectedCallback() {
+        window.addEventListener("urlUpdated", this.handleUrlUpdated);
+    }
+
+    disconnectedCallback() {
+        window.removeEventListener("urlUpdated", this.handleUrlUpdated);
     }
 
     getIdsFromUrl() {

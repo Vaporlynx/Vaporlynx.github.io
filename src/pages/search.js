@@ -1,16 +1,28 @@
 import * as urlHelper from "../../src/urlHelper.js";
+// TODO: decide if navigation should be handled by the individual panels, or if it should be hoisted up to the index
 
 const template = document.createElement("template");
 template.innerHTML = `
     <style>
         :host {
             font-size: 16px;
+            display: grid;
+            grid-template: 32px / 1fr;
+            grid-template-areas: "controls"
+                                 "units";
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #controls {
+            grid-area: controls;
+            display: flex;
         }
     
         #mechContainer {
-            display: flex;
-            flex-direction: column;
-            flex-wrap:wrap 
+            grid-area: units;
+            overflow: auto;
         }
         #mechContainer > * {
             margin-top: 10px;
@@ -52,15 +64,20 @@ template.innerHTML = `
         #unitName {
             width: 100%;
             height: 100%;
+            background-color: #6d6d6d;
+            border: none;
+            color: #dadada;
         }
     </style>
-
-    <vpl-label prefix="Mech Name:" id="label">
-    <div slot="content" id="searchContainer">
-        <input type="text" id="unitName"></input>
-        <img src="/assets/spinner.svg" id="spinner"></img>
+    <div id="controls">
+        <vpl-label prefix="Mech Name:" id="label">
+            <div slot="content" id="searchContainer">
+                <input type="text" id="unitName"></input>
+                <img src="/assets/spinner.svg" id="spinner"></img>
+            </div>
+        </vpl-label>
+        <button id="roster">Roster</button>
     </div>
-    </vpl-label>
     <div id="mechContainer"> </div>
 `;
 
@@ -80,6 +97,12 @@ export default class searchPage extends HTMLElement {
         this.unitNameElem = this.shadowRoot.getElementById("unitName");
         this.mechContainerElem = this.shadowRoot.getElementById("mechContainer");
         this.spinnerElem = this.shadowRoot.getElementById("spinner");
+        this.rosterElem = this.shadowRoot.getElementById("roster");
+        this.rosterElem.addEventListener("pointerdown", event => {
+            urlHelper.setParams({
+                page: "roster",
+            });
+        });
 
         this.unitNameElem.addEventListener("keypress", async event => {
             if (event.key ===  "Enter") {
