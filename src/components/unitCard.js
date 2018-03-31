@@ -129,6 +129,7 @@ template.innerHTML = `
             object-fit: contain;
             height: inherit;
             margin-left: 10px;
+            padding-bottom: 15px;
         }
 
         #attributes {
@@ -144,7 +145,7 @@ template.innerHTML = `
         }
 
         #pvContainer {
-            width: 100px;
+            width: 50px;
         }
 
         #structureSpecials {

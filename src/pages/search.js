@@ -108,7 +108,7 @@ export default class searchPage extends HTMLElement {
             for (const unit of data) {
                 const card = document.createElement("unit-card");
                 card.data = unit;
-                card.addEventListener("click", () => {
+                card.addEventListener("pointerdown", () => {
                     this.addUnit(card.data.id);
                 });
                 this.mechContainerElem.appendChild(card);
