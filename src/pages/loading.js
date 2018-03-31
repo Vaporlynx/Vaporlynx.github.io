@@ -54,7 +54,10 @@ export default class rosterPage extends HTMLElement {
 
         this.loadingContainerElem = this.shadowRoot.getElementById("loadingContainer");
         this.progressIndicatorElem = this.shadowRoot.getElementById("progressIndicator");
-        this.updateLoadStatus();
+        // Wait a moment so the service worker has a chance to load
+        setTimeout(() => {
+            this.updateLoadStatus();
+        }, 1);
     }
 
     async updateLoadStatus() {

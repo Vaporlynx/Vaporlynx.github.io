@@ -1,5 +1,6 @@
 let unitDB = null;
 let imageDB = null;
+let loading = false;
 // TODO there doesn't seem to be any DS DA or MS in the MUL?
 const unitTypes = ["BM", "IM", "PM", "CV", "SV", "AF", "CF", "DS", "DA", "SC", "MS", "CI", "BA"];
 const loadedTypes = [];
@@ -20,9 +21,81 @@ unitDBConnection.onerror = event => {
   handleError("error opening unitDB");
 };
 
+const getUnits = type => {
+  return new Promise((resolve, reject) => {
+    if (unitDB) {
+      const request = unitDB.transaction(type).objectStore(type).getAll();
+      request.onerror = event => {
+        reject(`Failed to get read transaction for type: ${type}`);
+      };
+      request.onsuccess = event => {
+        resolve(request.result);
+      };
+    }
+    else {
+      reject("Unit database not initialized!");
+    }
+  });
+};
+
+const setUnit = (type,  data) => {
+  return new Promise((resolve, reject) => {
+    if (unitDB) {
+      try {
+        const request = unitDB.transaction(type, "readwrite").objectStore(type).put(data);
+        request.onsuccess = event => {
+          resolve();
+        };
+      }
+      catch (err) {
+        reject(`setUnit failed for: ${type}, name: ${data.name}`);
+      }
+    }
+    else {
+      reject("Unit database not initialized!");
+    }
+  });
+};
+
 unitDBConnection.onupgradeneeded = event => {
+  loading = true;
   for (const unitType of unitTypes) {
     event.target.result.createObjectStore(unitType, {keyPath: "name"});
+  }
+  for (const type of unitTypes) {
+      handleError(`Fetching bundled def for type ${type}`);
+    fetch(`/defs/${type}-def.json`).then(request => request.text()).then(unParsed => JSON.parse(unParsed)).then(async data => {
+      handleError(`Got bundled def for type ${type}`);
+      for (const key of Object.keys(data)) {
+        const datum = data[key];
+        const unit = {
+          id: datum.id,
+          name: datum.nm,
+          pv: datum.pv,
+          armor: datum.ar,
+          structure: datum.st,
+          damage: {
+            short: datum.da.s,
+            medium: datum.da.m,
+            long: datum.da.l,
+          },
+          movement: datum.mv,
+          image: datum.img,
+          type: datum.tp,
+          size: datum.sz,
+          role: datum.rl,
+          skill: 4,
+          special: datum.spc,
+          class: datum.cl,
+          variant: datum.vnt,
+        };
+        await setUnit(unit.type, unit);
+      }
+      loadedTypes.push(type);
+    }).catch(err => {
+      loadedTypes.push(type);
+      handleError(`Failed to get bundled def for type ${type}`);
+    });
   }
 };
 
@@ -69,42 +142,6 @@ const setImage = (url,  data) => {
     }
     else {
       reject("Image database not initialized!");
-    }
-  });
-};
-
-const getUnits = type => {
-  return new Promise((resolve, reject) => {
-    if (unitDB) {
-      const request = unitDB.transaction(type).objectStore(type).getAll();
-      request.onerror = event => {
-        reject(`Failed to get read transaction for type: ${type}`);
-      };
-      request.onsuccess = event => {
-        resolve(request.result);
-      };
-    }
-    else {
-      reject("Unit database not initialized!");
-    }
-  });
-};
-
-const setUnit = (type,  data) => {
-  return new Promise((resolve, reject) => {
-    if (unitDB) {
-      try {
-        const request = unitDB.transaction(type, "readwrite").objectStore(type).put(data);
-        request.onsuccess = event => {
-          resolve();
-        };
-      }
-      catch (err) {
-        reject(`setUnit failed for: ${type}, name: ${data.name}`);
-      }
-    }
-    else {
-      reject("Unit database not initialized!");
     }
   });
 };
@@ -214,44 +251,9 @@ const searchUnits = url => {
   });
 };
 
-unitDBConnection.onsuccess = event => {
+unitDBConnection.onsuccess = async event => {
   self.clients.claim();
   unitDB = event.target.result;
-  for (const type of unitTypes) {
-      handleError(`Fetching bundled def for type ${type}`);
-    fetch(`/defs/${type}-def.json`).then(request => request.text()).then(unParsed => JSON.parse(unParsed)).then(async data => {
-      handleError(`Got bundled def for type ${type}`);
-      for (const key of Object.keys(data)) {
-        const datum = data[key];
-        const unit = {
-          id: datum.id,
-          name: datum.nm,
-          pv: datum.pv,
-          armor: datum.ar,
-          structure: datum.st,
-          damage: {
-            short: datum.da.s,
-            medium: datum.da.m,
-            long: datum.da.l,
-          },
-          movement: datum.mv,
-          image: datum.img,
-          type: datum.tp,
-          size: datum.sz,
-          role: datum.rl,
-          skill: 4,
-          special: datum.spc,
-          class: datum.cl,
-          variant: datum.vnt,
-        };
-        await setUnit(unit.type, unit);
-      }
-      loadedTypes.push(type);
-    }).catch(err => {
-      loadedTypes.push(type);
-      handleError(`Failed to get bundled def for type ${type}`);
-    });
-  }
 };
 
 imageDBConnection.onsuccess = async event => {
@@ -270,6 +272,6 @@ self.addEventListener("fetch", event => {
     event.respondWith(searchUnits(url));
   }
   else if (url.pathname === "/sw-loadStatus") {
-    event.respondWith(new Response(`${loadedTypes.length / unitTypes.length}`));
+    event.respondWith(new Response(`${!loading ? 1 : loadedTypes.length / unitTypes.length}`));
   }
 });
