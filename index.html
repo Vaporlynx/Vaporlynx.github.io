@@ -16,6 +16,17 @@
             background-color: #1a1a1b;
             color: #cbcbcb;
         }
+
+        #compatibilityNote {
+            position: absolute;
+            top: 0px;
+            left: 0px;
+            z-index: -1;
+        }
+
+        #pageContainer {
+            background-color: #1a1a1b;
+        }
     </style>
     <script>
         const globals = {
@@ -33,6 +44,7 @@
     <script type="module" src = "/src/pages/search.js"></script>
     <script type="module" src = "/src/pages/roster.js"></script>
     <script type="module" src = "/src/pages/loading.js"></script>
+    <div id="compatibilityNote"> It appears this app did not load properly.  Please use the latest version of Chrome to run this app.</div>
     <div id="pageContainer"></div>
     <script type="module" src = "/src/index.js"></script>
 </body>
