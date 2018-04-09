@@ -6,8 +6,8 @@ template.innerHTML = `
         }
         #pipsContainer {
         }
-        // TODO: change it so that the disabled state has the same style as the not disabled state
-        #pipsContainer > input:disabled {
+        .disabled {
+            pointer-events: none;
         }
     </style>
     <div id="pipsContainer"></div>
@@ -31,6 +31,7 @@ export default class pips extends HTMLElement {
 
         this._totalPips = 0;
         this._mode = "individual";
+        this._marked = 0;
     }
 
     attributeChangedCallback(name, oldValue, newValue) {
@@ -58,10 +59,18 @@ export default class pips extends HTMLElement {
                     });
                 }
                 else {
-                    pip.disabled = true;
+                    pip.classList.add("disabled");
                 }
                 pip.checked = true;
                 this.pipsContainerElem.appendChild(pip);
+            }
+            if (["additive", "subtractive"].includes(this.mode)) {
+                this.addEventListener("click", event => {
+                    this.marked = event.offsetX > this.clientWidth / 2 ? this.marked + 1 : this.marked - 1;
+                });
+            }
+            if (this.mode === "subtractive") {
+                this.marked = this.totalPips;
             }
         }
     }
@@ -72,6 +81,7 @@ export default class pips extends HTMLElement {
 
     // TODO: un-mark all pips, then mark the appropriate number
     set marked (val) {
+        val = Math.max(0, Math.min(val, this.totalPips));
         for (let i = 0; i < this.totalPips; i++) {
             // Goddammit, checked?  Really?  Why cant this be value?
             this.pipsContainerElem.children[i].checked = false;
@@ -79,11 +89,12 @@ export default class pips extends HTMLElement {
         for (let i = 0; i < val; i++) {
             this.pipsContainerElem.children[i].checked = true;
         }
+        this._marked = val;
     }
 
     // TODO: return the number of marked pips
     get marked () {
-        return 0;
+        return this._marked;
     }
 
     set mode (val) {

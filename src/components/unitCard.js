@@ -232,10 +232,10 @@ template.innerHTML = `
             <div id="structureSpecials" class="spacedColumn">
                 <div id="health" class="spacedColumn bevel trbl">
                     <vpl-label prefix="A">
-                        <vpl-pips id="armor" slot="content"></vpl-pips>
+                        <vpl-pips id="armor" slot="content" mode="subtractive"></vpl-pips>
                     </vpl-label>
                     <vpl-label prefix="S">
-                        <vpl-pips id="structure" slot="content"></vpl-pips>
+                        <vpl-pips id="structure" slot="content" mode="subtractive"></vpl-pips>
                     </vpl-label>    
                 </div>
                 <vpl-label prefix="Special:"  id="specialContainer" class="bevel trbl">
