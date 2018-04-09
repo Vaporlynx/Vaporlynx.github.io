@@ -19,7 +19,7 @@ export default class pips extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ["total-pips", "mode"];
+        return ["total-pips", "mode", "marked"];
     }
 
     constructor() {
@@ -37,6 +37,7 @@ export default class pips extends HTMLElement {
         switch (name) {
             case "total-pips": this.totalPips = newValue; break;
             case "mode": this.mode = newValue; break;
+            case "marked": this.marked = parseInt(newValue); break;
         }
     }
 

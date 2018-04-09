@@ -161,9 +161,17 @@ template.innerHTML = `
             height: 76px;
         }
 
-        #criticals {
-            width: 300px;
+        #criticalsContainer {
+            display: flex;
+            flex-direction: column;
+            width: 500px;
             margin-left: 10px;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        #criticals {
+            font-size: 12px;
         }
     </style>
     <div id="cardBody" class="spacedColumn">
@@ -171,8 +179,8 @@ template.innerHTML = `
             <div id="name" class="spacedColumn bevel trbl">
             </div>
             <vpl-label prefix="PV:" id="pvContainer" class="bevel trbl">
-            <div id="pv" slot="content">
-            </div>
+                <div id="pv" slot="content"></div>
+            </vpl-label>
         </div>
         <div id="upperDetails" class="spacedRow">
             <div class="spacedColumn" id="mainDetails">
@@ -234,11 +242,9 @@ template.innerHTML = `
                     <div id="special" slot="content"></div>
                 </vpl-label>
             </div>
-            <div id="criticals" class="spacedColumn bevel trbl">
-                <div>
-                    Critical Hits
-                </div>
-            </div>
+            <vpl-label prefix="CRITICAL HITS"  id="criticalsContainer" class=" bevel trbl">
+                <div id="criticals" slot="content" class="spacedColumn"></div>
+            </vpl-label>
         </div>
     </div>
 `;
@@ -269,13 +275,15 @@ export default class UnitCard extends HTMLElement {
 
         this.specialElem = this.shadowRoot.getElementById("special");
 
+        this.criticalsElem = this.shadowRoot.getElementById("criticals");
+
         this.imageElem = this.shadowRoot.getElementById("image");
 
         this._data = null;
     }
 
     set data(val) {
-        // WTF? setting data before constructors have had a chance to run?
+        // TODO: fix bug where setting this immediately breaks the pips
         setTimeout(() => {
             if (val !== this._data) {
                 this._data = val;
@@ -293,6 +301,13 @@ export default class UnitCard extends HTMLElement {
                 this.structureElem.totalPips = val.structure;
                 this.specialElem.textContent = val.special;
                 this.imageElem.src = val.image;
+                let critElem = null;
+                switch (val.type) {
+                    case "BM": critElem = document.createElement("vpl-mech-crit-chart"); break;
+                }
+                if (critElem) {
+                    this.criticalsElem.appendChild(critElem);
+                }
             }
         }, 1);
     }
