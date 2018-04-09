@@ -55,7 +55,9 @@ export default class pips extends HTMLElement {
                 pip.type = "radio";
                 if (this.mode === "individual") {
                     pip.addEventListener("click", event => {
-                        this.marked = [...this.pipsContainerElem.children].indexOf(event.target);
+                        const index = [...this.pipsContainerElem.children].indexOf(event.target) + 1;
+                        const offset = this.marked === index ? -1 : 0;
+                        this.marked = index + offset;
                     });
                 }
                 else {
@@ -79,11 +81,9 @@ export default class pips extends HTMLElement {
         return this._totalPips;
     }
 
-    // TODO: un-mark all pips, then mark the appropriate number
     set marked (val) {
         val = Math.max(0, Math.min(val, this.totalPips));
         for (let i = 0; i < this.totalPips; i++) {
-            // Goddammit, checked?  Really?  Why cant this be value?
             this.pipsContainerElem.children[i].checked = false;
         }
         for (let i = 0; i < val; i++) {
@@ -92,7 +92,6 @@ export default class pips extends HTMLElement {
         this._marked = val;
     }
 
-    // TODO: return the number of marked pips
     get marked () {
         return this._marked;
     }
@@ -110,7 +109,6 @@ export default class pips extends HTMLElement {
     get mode () {
         return this._mode;
     }
-
 
 }
 
