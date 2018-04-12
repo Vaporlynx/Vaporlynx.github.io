@@ -46,6 +46,7 @@ const getUnits = async () => {
                             spc: Unit.BFAbilities,
                             cl: Unit.Class,
                             vnt: Unit.Variant,
+                            ov: Unit.BFOverheat,
                         };
                         if (!unitsByType[unit.tp]) {
                             unitsByType[unit.tp] = {};

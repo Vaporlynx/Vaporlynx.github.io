@@ -27,6 +27,16 @@
         #pageContainer {
             background-color: #1a1a1b;
         }
+
+        #modalLayer {
+            position: absolute;
+            display: flex;
+            top: 0px;
+            left: 0px;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+        }
     </style>
     <script>
         const globals = {
@@ -47,6 +57,7 @@
     <script type="module" src = "/src/pages/loading.js"></script>
     <div id="compatibilityNote"> It appears this app did not load properly.  Please use the latest version of Chrome to run this app.</div>
     <div id="pageContainer"></div>
+    <div id="modalLayer"></div>
     <script type="module" src = "/src/index.js"></script>
 </body>
 </html>

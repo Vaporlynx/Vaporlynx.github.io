@@ -10,6 +10,7 @@ template.innerHTML = `
             color: #fff557;
             padding: 10px;
         }
+        
         #cardBody {
             height: 100%;
             width: 100%;
@@ -220,10 +221,12 @@ template.innerHTML = `
                     </vpl-label>
                 </div>
                 <div id="heat" class="spacedRow bevel trbl">
-                    <div id="overheat>
-                    </div>
-                    <div id="heatScale">
-                    </div>
+                    <vpl-label prefix="OV:">
+                        <div id="overheat" slot="content"></div>
+                    </vpl-label>
+                    <vpl-label prefix="Heat Scale">
+                        <vpl-pips id="heatScale" slot="content" total-pips="4" marked="0"></vpl-pips>
+                    </vpl-label>
                 </div>
             </div>
             <img id="image"></img>
@@ -273,6 +276,8 @@ export default class UnitCard extends HTMLElement {
         this.armorElem = this.shadowRoot.getElementById("armor");
         this.structureElem = this.shadowRoot.getElementById("structure");
 
+        this.overheatElem = this.shadowRoot.getElementById("overheat");
+
         this.specialElem = this.shadowRoot.getElementById("special");
 
         this.criticalsElem = this.shadowRoot.getElementById("criticals");
@@ -288,7 +293,6 @@ export default class UnitCard extends HTMLElement {
             if (val !== this._data) {
                 this._data = val;
                 this.nameElem.textContent = val.name;
-                this.pvElem.textContent = val.pv;
                 this.typeElem.textContent = val.type;
                 this.sizeElem.textContent = val.size;
                 this.movementElem.textContent = val.movement;
@@ -299,15 +303,29 @@ export default class UnitCard extends HTMLElement {
                 this.longElem.textContent = val.damage.long;
                 this.armorElem.totalPips = val.armor;
                 this.structureElem.totalPips = val.structure;
+                this.overheatElem.textContent = val.overheat || 0;
                 this.specialElem.textContent = val.special;
                 this.imageElem.src = val.image;
                 let critElem = null;
                 switch (val.type) {
                     case "BM": critElem = document.createElement("vpl-mech-crit-chart"); break;
-                }
+                } 
                 if (critElem) {
                     this.criticalsElem.appendChild(critElem);
                 }
+                // TODO: look and see if these numbers are driven by a formula, use that if they are.
+                let skillMod = 1;
+                switch (val.skill) {
+                    case 0: skillMod = 2.63; break;
+                    case 1: skillMod = 2.24; break;
+                    case 2: skillMod = 1.82; break;
+                    case 3: skillMod = 1.38; break;
+                    case 4: skillMod = 1.0; break;
+                    case 5: skillMod = 0.86; break;
+                    case 6: skillMod = 0.77; break;
+                    case 7: skillMod = 0.68; break;
+                }
+                this.pvElem.textContent = val.pv * skillMod;
             }
         }, 1);
     }
