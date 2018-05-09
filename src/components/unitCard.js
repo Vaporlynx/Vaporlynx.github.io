@@ -194,8 +194,10 @@ template.innerHTML = `
                         <div id="size" slot="content">
                         </div>
                     </vpl-label>
-                    <div id="tmm">
-                    </div>
+                    <vpl-label prefix="TMM:">
+                        <div id="tmm" slot="content">
+                        </div>
+                    </vpl-label>
                     <vpl-label prefix="MV:">
                         <div id="movement" slot="content">
                         </div>
@@ -266,6 +268,7 @@ export default class UnitCard extends HTMLElement {
         this.pvElem = this.shadowRoot.getElementById("pv");
         this.typeElem = this.shadowRoot.getElementById("type");
         this.sizeElem = this.shadowRoot.getElementById("size");
+        this.movementModifierElem = this.shadowRoot.getElementById("tmm");
         this.movementElem = this.shadowRoot.getElementById("movement");
         this.roleElem = this.shadowRoot.getElementById("role");
         this.skillElem = this.shadowRoot.getElementById("skill");
@@ -309,7 +312,7 @@ export default class UnitCard extends HTMLElement {
                 let critElem = null;
                 switch (val.type) {
                     case "BM": critElem = document.createElement("vpl-mech-crit-chart"); break;
-                } 
+                }
                 if (critElem) {
                     this.criticalsElem.appendChild(critElem);
                 }
@@ -325,7 +328,28 @@ export default class UnitCard extends HTMLElement {
                     case 6: skillMod = 0.77; break;
                     case 7: skillMod = 0.68; break;
                 }
-                this.pvElem.textContent = val.pv * skillMod;
+                this.pvElem.textContent = Math.round(val.pv * skillMod);
+                let tmm = 1;
+                const movement = parseInt(val.movement);
+                if (movement < 5) {
+                    tmm = 0
+                }
+                else if (movement < 9) {
+                    tmm = 1;
+                }
+                else if (movement < 13) {
+                    tmm = 2;
+                }
+                else if (movement < 19) {
+                    tmm = 3;
+                }
+                else if (movement < 35) {
+                    tmm = 4;
+                }
+                else if (movement >= 35) {
+                    tmm = 5;
+                }
+                this.movementModifierElem.textContent = tmm;
             }
         }, 1);
     }
