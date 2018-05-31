@@ -15,6 +15,16 @@ template.innerHTML = `
             width: 100vw;
         }
 
+        .spacedRow {
+            display: flex;
+            flex-direction: row;
+        }
+    
+        .spacedColumn {
+            display: flex;
+            flex-direction: column;
+        }
+
         #controls {
             grid-area: controls;
             display: flex;
@@ -28,18 +38,18 @@ template.innerHTML = `
             margin-top: 10px;
         }
 
-
         #searchContainer {
-            height: 22px;
+            height: 32px;
             width: 50%;
             display: flex;
         }
         #searchContainer>* {
-            font-size: 24px;
+            font-size: 32px;
         }
 
         #label {
-            font-size: 24px;
+            font-size: 32px;
+            margin-bottom: 12px;
         }
 
         @keyframes spin {
@@ -67,6 +77,27 @@ template.innerHTML = `
             background-color: #6d6d6d;
             border: none;
             color: #dadada;
+        }
+
+        .cardContainer {
+            position: relative;
+        }
+
+        .rosterControlsContainer {
+            width: 200px;
+            height: 50px;
+            background-color: #3d3d4e;    
+            position: absolute;
+            bottom: 0px;
+            right: 0px;
+            justify-content: space-between;
+        }
+
+        .alterRosterButton {
+            width: 48px;
+            height: 48px;
+            background-color: blue;
+            font-size: 48px;
         }
     </style>
     <div id="controls">
@@ -129,16 +160,34 @@ export default class searchPage extends HTMLElement {
             this.spinnerElem.classList.remove("show");
             const data = JSON.parse(await unParsed.text());
             for (const unit of data) {
+                // TODO: create a template for all this stuff
                 const card = document.createElement("unit-card");
                 card.data = unit;
-                card.addEventListener("pointerdown", () => {
+                const rosterControlsContainer = document.createElement("div");
+                rosterControlsContainer.classList.add("rosterControlsContainer", "spacedRow");
+                const addUnit = document.createElement("div");
+                addUnit.innerText = "+";
+                addUnit.classList.add("alterRosterButton");
+                const removeUnit = document.createElement("div");
+                removeUnit.innerText = "-";
+                removeUnit.classList.add("alterRosterButton");
+                addUnit.addEventListener("pointerdown", () => {
                     this.addUnit(card.data.id);
                 });
-                this.mechContainerElem.appendChild(card);
+                removeUnit.addEventListener("pointerdown", () => {
+                    this.removeUnit(card.data.id);
+                });
+                rosterControlsContainer.appendChild(addUnit);
+                rosterControlsContainer.appendChild(removeUnit);
+                const cardContainer = document.createElement("div");
+                cardContainer.classList.add("cardContainer");
+                cardContainer.appendChild(rosterControlsContainer);
+                cardContainer.appendChild(card);
+                this.mechContainerElem.appendChild(cardContainer);
             }
         }
         catch (err) {
-            global.handleError(`Error getting unit: ${err}`);
+            globals.handleError(`Error getting unit: ${err}`);
         }
     }
 
@@ -146,6 +195,15 @@ export default class searchPage extends HTMLElement {
         const params = urlHelper.getParams();
         const unitIds = params.unitIds ? params.unitIds.split(",") : [];
         unitIds.push(id);
+        urlHelper.setParams({unitIds: unitIds.join(",")});
+    }
+
+    removeUnit(id) {
+        const params = urlHelper.getParams();
+        const unitIds = params.unitIds ? params.unitIds.split(",").map(i => parseInt(i)) : [];
+        if (unitIds.includes(id)) {
+            unitIds.splice(unitIds.indexOf(id), 1);
+        }
         urlHelper.setParams({unitIds: unitIds.join(",")});
     }
 }

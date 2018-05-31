@@ -96,7 +96,7 @@ export default class rosterPage extends HTMLElement {
                 }
             }
             catch (err) {
-                global.handleError(`Error getting unit: ${err}`);
+                globals.handleError(`Error getting unit: ${err}`);
             }
         } 
     }
