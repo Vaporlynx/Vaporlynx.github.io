@@ -43,8 +43,8 @@ template.innerHTML = `
 
     <div id="controls">
         <button id="search">Search</button>
-        <vpl-label prefix="Number of rows:" id="label">
-        <input type="number" id="rowCount" value="1" min="1" max="5" slot="content"/>
+        <vpl-label prefix="Number of columns:" id="label">
+        <input type="number" id="columnCount" value="1" min="1" max="5" slot="content"/>
     </div>
     <div id="roster"> </div>
 `;
@@ -77,10 +77,11 @@ export default class rosterPage extends HTMLElement {
         });
 
         // TODO: get the available screen size and use that to calculate how big the cards should be.
-        this.rowCountElem = this.shadowRoot.getElementById("rowCount");
-        this.rowCountElem.addEventListener("change", event => {
-            this.style.setProperty("--cardRows", this.rowCountElem.value);
+        this.columnCountElem = this.shadowRoot.getElementById("columnCount");
+        this.columnCountElem.addEventListener("change", event => {
+            this.style.setProperty("--cardRows", this.columnCountElem.value);
         });
+        window.onbeforeunload = () => "Are you sure you want to clear this page?";
     }
 
     connectedCallback() {
