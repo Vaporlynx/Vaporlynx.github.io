@@ -4,11 +4,14 @@ template.innerHTML = `
         :host {
             display: flex;
         }
-        #pipsContainer {
+        #pipsContainer input {
+            height: var(--pipSize);
+            width: var(--pipSize);
         }
         .disabled {
             pointer-events: none;
         }
+
     </style>
     <div id="pipsContainer"></div>
 `;

@@ -13,8 +13,18 @@
             overflow: auto;
             margin: 0;
             font-family: Ubuntu, sans-serif;
-            background-color: #1a1a1b;
-            color: #cbcbcb;
+            --backgroundColor: #a4a6a9;
+            --backgroundFontColor: #cbcbcb;
+            --nonInteractiveElementBackgroundColor: #bcbabe;
+            --nonInteractiveElementBackgroundFontColor: #636363;
+            --nonInteractiveElement2BackgroundColor: #f1f1f2;
+            --nonInteractiveElement2BackgroundFontColor: #636363;
+            --interactiveElementBackgroundColor: #1995ad;
+            --interactiveElementBackgroundFontColor: #636363;
+            --interactiveElementHoverBackgroundColor: #a1d6e2;
+            --interactiveElementHoverBackgroundFontColor: #636363;
+            background-color: var(--backgroundColor);
+            color: var(--backgroundFontColor);
         }
 
         #compatibilityNote {
@@ -25,7 +35,7 @@
         }
 
         #pageContainer {
-            background-color: #1a1a1b;
+            background-color: var(--backgroundColor);
         }
 
         #modalLayer {
@@ -47,8 +57,9 @@
     </script>
     <script type="module" src = "/src/urlHelper.js"></script>
 
-    <script type="module" src = "/src/components/pips.js"></script>
+    <script type="module" src = "/src/components/addRemoveUnit.js"></script>
     <script type="module" src = "/src/components/label.js"></script>
+    <script type="module" src = "/src/components/pips.js"></script>
     <script type="module" src = "/src/components/unitCard.js"></script>
     <script type="module" src = "/src/components/critCharts/mech.js"></script>
     

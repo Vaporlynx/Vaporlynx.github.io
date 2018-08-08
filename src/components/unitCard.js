@@ -2,18 +2,17 @@ const template = document.createElement("template");
 template.innerHTML = `
     <style>
         :host {
-            width: 700px;
-            height: 500px;
             display: flex;
-            background-color: #282c38;
-            --bevelBgColor: #585c86;
-            color: #fff557;
+            height: 100%;
+            background-color: var(--nonInteractiveElementBackgroundColor);
+            color: var(--nonInteractiveElementBackgroundFontColor);
             padding: 10px;
+            --bevelBgColor: var(--nonInteractiveElement2BackgroundColor);
         }
         
         #cardBody {
-            height: 100%;
-            width: 100%;
+            height: inherit;
+            width: inherit;
         }
     
         .spacedRow {
@@ -26,109 +25,40 @@ template.innerHTML = `
             flex-direction: column;
         }
 
-        // Bevel garbage
-        .bevel.all {
-            background: var(--bevelBgColor);
-            background:
-                -moz-linear-gradient(45deg,  transparent 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(135deg, transparent 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(315deg, transparent 10px, var(--bevelBgColor) 10px);
-            background:
-                -o-linear-gradient(45deg,  transparent 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(135deg, transparent 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(315deg, transparent 10px, var(--bevelBgColor) 10px);
-            background:
-                -webkit-linear-gradient(45deg,  transparent 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(135deg, transparent 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(315deg, transparent 10px, var(--bevelBgColor) 10px);
-        }
-        .bevel.tlbr {
-            background: var(--bevelBgColor);
-            background:
-                -moz-linear-gradient(45deg,  var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(135deg, transparent 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(225deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(315deg, transparent 10px, var(--bevelBgColor) 10px);
-            background:
-                -o-linear-gradient(45deg,  var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(135deg, transparent 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(225deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(315deg, transparent 10px, var(--bevelBgColor) 10px);
-            background:
-                -webkit-linear-gradient(45deg,  var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(135deg, transparent 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(225deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(315deg, transparent 10px, var(--bevelBgColor) 10px);
-        }
-        .bevel.trbl {
-            background: var(--bevelBgColor);
-            background:
-                -moz-linear-gradient(45deg,  transparent 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(135deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(315deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px);
-            background:
-                -o-linear-gradient(45deg,  transparent 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(135deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(315deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px);
-            background:
-                -webkit-linear-gradient(45deg,  transparent 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(135deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(315deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px);
-        }
-        .bevel.tr {
-            background: var(--bevelBgColor);
-            background:
-                -moz-linear-gradient(45deg,  var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(135deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -moz-linear-gradient(315deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px);
-            background:
-                -o-linear-gradient(45deg,  var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(135deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -o-linear-gradient(315deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px);
-            background:
-                -webkit-linear-gradient(45deg,  var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(135deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(225deg, transparent 10px, var(--bevelBgColor) 10px),
-                -webkit-linear-gradient(315deg, var(--bevelBgColor) 10px, var(--bevelBgColor) 10px);
-        }
-        .bevel.all, .bevel.trbl, .bevel.tlbr, .bevel.tr {
-            background-position: bottom left, bottom right, top right, top left;
-            -moz-background-size: 50% 50%;
-            -webkit-background-size: 50% 50%;
-            background-size: 50% 50%;
-            background-repeat: no-repeat;
-            margin-bottom: 15px;
-            padding: 15px;
+        .bevel {
+            background-color: var(--nonInteractiveElement2BackgroundColor);
+            clip-path: polygon(0 0, calc(100% - var(--bevelOffset)) 0, 100% var(--bevelOffset), 100% 100%, var(--bevelOffset) 100%, 0 calc(100% - var(--bevelOffset)));
+            padding: calc(var(--bevelOffset) / 2);
+            margin-bottom: 10px;
         }
 
         #header {
             justify-content: space-between;
+            height: 10%;
+            font-weight: bold;
+            font-size: 125%;
         }
 
         #upperDetails {
-            height: 200px;
+            height: 40%;
+            font-size: 130%;
         }
 
         #mainDetails {
-            width: 100%;
+            width: 70%;
+        }
+        #mainDetails div {
+            height: 30%;
         }
 
         #lowerDetails {
-            height: 225px;
+            height: 50%;
+            font-size: 140%;
         }
 
         #image {
-            width: 250px;
+            width: 30%;
             object-fit: contain;
-            height: inherit;
             margin-left: 10px;
             padding-bottom: 15px;
         }
@@ -142,50 +72,50 @@ template.innerHTML = `
         }
 
         #name {
-            width: 200px;
         }
 
         #pvContainer {
-            width: 50px;
         }
 
         #structureSpecials {
-            width: 100%;
+            width: 60%;
         }
         
         #health {
-            height: 58px;
+            height: 40%;
             justify-content: space-between;
         }
 
-        #specialContainer {
-            height: 76px;
+        #special {
+            height: 60%;
+            word-wrap: break-word;
         }
 
         #criticalsContainer {
+            width: 40%;
             display: flex;
             flex-direction: column;
-            width: 500px;
             margin-left: 10px;
             align-items: center;
-            font-size: 20px;
         }
 
         #criticals {
-            font-size: 12px;
+            width: 100%;
+            height: 100%;
+            display: flex;
         }
     </style>
     <div id="cardBody" class="spacedColumn">
         <div id="header" class="spacedRow">
-            <div id="name" class="spacedColumn bevel trbl">
+            <div id="name" class="spacedColumn bevel">
             </div>
-            <vpl-label prefix="PV:" id="pvContainer" class="bevel trbl">
+            <vpl-label prefix="PV:" id="pvContainer" class="bevel">
                 <div id="pv" slot="content"></div>
             </vpl-label>
         </div>
         <div id="upperDetails" class="spacedRow">
             <div class="spacedColumn" id="mainDetails">
-                <div id="attributes" class="spacedRow bevel trbl">
+                <div id="attributes" class="spacedRow bevel">
                     <vpl-label prefix="TP:">
                         <div id="type" slot="content">
                         </div>
@@ -211,7 +141,7 @@ template.innerHTML = `
                         </div>
                     </vpl-label>
                 </div>
-                <div id="damage" class="spacedRow bevel trbl">
+                <div id="damage" class="spacedRow bevel">
                     <vpl-label prefix="S(+0)">
                         <div id="short" slot="content"></div>
                     </vpl-label>
@@ -222,7 +152,7 @@ template.innerHTML = `
                         <div id="long" slot="content"></div>
                     </vpl-label>
                 </div>
-                <div id="heat" class="spacedRow bevel trbl">
+                <div id="heat" class="spacedRow bevel">
                     <vpl-label prefix="OV:">
                         <div id="overheat" slot="content"></div>
                     </vpl-label>
@@ -235,7 +165,7 @@ template.innerHTML = `
         </div>
         <div id="lowerDetails" class="spacedRow">
             <div id="structureSpecials" class="spacedColumn">
-                <div id="health" class="spacedColumn bevel trbl">
+                <div id="health" class="spacedColumn bevel">
                     <vpl-label prefix="A">
                         <vpl-pips id="armor" slot="content" mode="subtractive"></vpl-pips>
                     </vpl-label>
@@ -243,12 +173,10 @@ template.innerHTML = `
                         <vpl-pips id="structure" slot="content" mode="subtractive"></vpl-pips>
                     </vpl-label>    
                 </div>
-                <vpl-label prefix="Special:"  id="specialContainer" class="bevel trbl">
-                    <div id="special" slot="content"></div>
-                </vpl-label>
+                <div id="special" class="bevel"></div>
             </div>
-            <vpl-label prefix="CRITICAL HITS"  id="criticalsContainer" class=" bevel trbl">
-                <div id="criticals" slot="content" class="spacedColumn"></div>
+            <vpl-label prefix="CRITICAL HITS"  id="criticalsContainer" class=" bevel">
+                <div id="criticals" slot="content"></div>
             </vpl-label>
         </div>
     </div>
@@ -307,7 +235,7 @@ export default class UnitCard extends HTMLElement {
                 this.armorElem.totalPips = val.armor;
                 this.structureElem.totalPips = val.structure;
                 this.overheatElem.textContent = val.overheat || 0;
-                this.specialElem.textContent = val.special;
+                this.specialElem.textContent = `Special: ${val.special ? val.special.split(",").join(", ") : ""}`;
                 this.imageElem.src = val.image;
                 let critElem = null;
                 switch (val.type) {

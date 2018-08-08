@@ -11,6 +11,9 @@ template.innerHTML = `
             overflow: hidden;
             height: 100vh;
             width: 100vw;
+
+            --cardRows: 1;
+            --cardSizeOffset: 0.9;
         }
 
         #controls {
@@ -29,11 +32,19 @@ template.innerHTML = `
 
         #roster > unit-card {
             margin: 5px;
+            width: calc(100vw / var(--cardRows) * var(--cardSizeOffset));
+            height: calc(71.42vw / var(--cardRows) * var(--cardSizeOffset));
+            position: relative;
+            font-size: calc(2vw / var(--cardRows) * var(--cardSizeOffset));
+            --pipSize: calc(2vw / var(--cardRows) * var(--cardSizeOffset));
+            --bevelOffset: calc(2.5vw / var(--cardRows) * var(--cardSizeOffset));
         }
     </style>
 
     <div id="controls">
         <button id="search">Search</button>
+        <vpl-label prefix="Number of rows:" id="label">
+        <input type="number" id="rowCount" value="1" min="1" max="5" slot="content"/>
     </div>
     <div id="roster"> </div>
 `;
@@ -64,8 +75,14 @@ export default class rosterPage extends HTMLElement {
                 page: "search",
             });
         });
+
+        // TODO: get the available screen size and use that to calculate how big the cards should be.
+        this.rowCountElem = this.shadowRoot.getElementById("rowCount");
+        this.rowCountElem.addEventListener("change", event => {
+            this.style.setProperty("--cardRows", this.rowCountElem.value);
+        });
     }
-    
+
     connectedCallback() {
         window.addEventListener("urlUpdated", this.handleUrlUpdated);
     }
@@ -76,7 +93,7 @@ export default class rosterPage extends HTMLElement {
 
     getIdsFromUrl() {
         if (urlHelper.getParams().unitIds) {
-            return urlHelper.consumeParams(["unitIds"]).unitIds.split(",").map(id => parseInt(id))
+            return urlHelper.getParams(["unitIds"]).unitIds.split(",").map(id => parseInt(id));
         }
         return [];
     }
@@ -98,7 +115,7 @@ export default class rosterPage extends HTMLElement {
             catch (err) {
                 globals.handleError(`Error getting unit: ${err}`);
             }
-        } 
+        }
     }
 }
 

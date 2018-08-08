@@ -5,15 +5,17 @@ template.innerHTML = `
             display: flex;
             --margin: 5px;
         }
-        #pipsContainer {
-        }
 
         #prefix {
             margin-right: var(--margin);
+            width: var(--prefixWidth);
+            font-size: var(--prefixFontSize);
         }
 
         #suffix {
             margin-left: var(--margin);
+            width: var(--suffixWidth);
+            font-size: var(--suffixFontSize);
         }
     </style>
     <div id="prefix"></div>

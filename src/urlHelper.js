@@ -41,9 +41,12 @@ export const setParams = (newParams, replace) => {
 };
 
 export const consumeParams = keys => {
-    return keys.reduce((deletedKeys, key) => {
+    const deletedKeys = keys.reduce((deletedKeys, key) => {
         deletedKeys[key] = params[key];
         delete params[key];
         return deletedKeys;
     }, {});
+    push(params);
+    window.dispatchEvent(new CustomEvent("urlUpdated"));
+    return deletedKeys;
 };
