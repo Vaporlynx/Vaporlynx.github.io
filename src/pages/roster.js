@@ -1,4 +1,5 @@
 import * as urlHelper from "../../src/urlHelper.js";
+import * as unitHelper from "../../src/unitHelper.js";
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -63,11 +64,18 @@ export default class rosterPage extends HTMLElement {
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
 
         this.rosterElem = this.shadowRoot.getElementById("roster");
-        this.handleUrlUpdated = event => {
-            this.buildRoster(this.getIdsFromUrl());
-        };
-        this.buildRoster(this.getIdsFromUrl());
 
+        this._units = [];
+
+        this.handleUrlUpdated = event => {
+            const units = this.pullUnits();
+            const encodedUnits = units.map(unit => unitHelper.encode(unit));
+            if (this.units.length !== units.length || !this.units.map(unit => unitHelper.encode(unit)).every((unit, index) => unit === encodedUnits[index])) {
+                this.units = units;
+                this.buildRoster(units);
+            }
+        };
+        this.buildRoster(this.units = this.pullUnits());
 
         this.searchElem = this.shadowRoot.getElementById("search");
         this.searchElem.addEventListener("pointerdown", event => {
@@ -81,7 +89,6 @@ export default class rosterPage extends HTMLElement {
         this.columnCountElem.addEventListener("change", event => {
             this.style.setProperty("--cardRows", this.columnCountElem.value);
         });
-        window.onbeforeunload = () => "Are you sure you want to clear this page?";
     }
 
     connectedCallback() {
@@ -92,26 +99,39 @@ export default class rosterPage extends HTMLElement {
         window.removeEventListener("urlUpdated", this.handleUrlUpdated);
     }
 
-    getIdsFromUrl() {
-        if (urlHelper.getParams().unitIds) {
-            return urlHelper.getParams(["unitIds"]).unitIds.split(",").map(id => parseInt(id));
-        }
-        return [];
+    get units() {
+        return this._units;
+    }
+    set units(val) {
+        this._units = val;
     }
 
-    async buildRoster(ids) {
+    pullUnits() {
+        const params = urlHelper.getParams();
+        return params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
+    }
+
+    pushUnits(units) {
+        urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
+    }
+
+    async buildRoster(units) {
         while (this.rosterElem.hasChildNodes()) {
             this.rosterElem.removeChild(this.rosterElem.lastChild);
         }
-        if (ids.length) {
+        if (units.length) {
             try {
-                const unParsed = await window.fetch(`/sw-units?unitIds=${ids.join(",")}`);
-                const data = JSON.parse(await unParsed.text());
-                for (const unit of data) {
+                const unParsed = await window.fetch(`/sw-units?unitIds=${units.map(i => i.id).join(",")}`);
+                const unitDefs = JSON.parse(await unParsed.text());
+                unitDefs.forEach((def, index) => {
                     const card = document.createElement("unit-card");
-                    card.data = unit;
+                    card.data = Object.assign(def, units.find(i => i.id === def.id));
+                    card.addEventListener("dataUpdated", event => {
+                        this.units[index] = event.detail.data;
+                        this.pushUnits(this.units);
+                    });
                     this.rosterElem.appendChild(card);
-                }
+                });
             }
             catch (err) {
                 globals.handleError(`Error getting unit: ${err}`);

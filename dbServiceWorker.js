@@ -199,7 +199,7 @@ const searchUnits = url => {
           valid = false;
         }
         if (valid) {
-          results.push(unit);
+          results.push(Object.assign(unit, {totalArmor: unit.armor, totalStructure: unit.structure}));
         }
       }
     }
@@ -262,16 +262,20 @@ imageDBConnection.onsuccess = async event => {
 
 self.addEventListener("fetch", event => {
   const url = new URL(event.request.url);
-  if (url.pathname === "/Unit/QuickList") {
-    event.respondWith(serveOrFetch(event.request));
-  }
-  else if (url.pathname === "/sw-units") {
+  if (url.pathname === "/sw-units") {
     event.respondWith(searchUnits(url));
   }
+  // TODO: finish the image cache.  The images are stored on an s3 bucket, with no CORS. so its non-trivial to fetch them
+  // Find a hack to pull the images (dump them in canvas, pull out the data, or do the work on the main thread without fetch and save it back to this worker)
+  // If that doesnt work, scrap it.
   else if (url.pathname === "/sw-images") {
-    event.respondWith(searchUnits(url));
+    event.respondWith(getImage(url));
   }
   else if (url.pathname === "/sw-loadStatus") {
     event.respondWith(new Response(`${!loading ? 1 : loadedTypes.length / unitTypes.length}`));
+  }
+  // Cache app assets
+  else if (["vaporlynx.github.io", "127.0.0.1"].includes(url.hostName)){
+    event.respondWith(serveOrFetch(event.request));
   }
 });

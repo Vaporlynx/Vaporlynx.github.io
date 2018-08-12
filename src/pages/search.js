@@ -1,4 +1,5 @@
 import * as urlHelper from "../../src/urlHelper.js";
+import * as unitHelper from "../../src/unitHelper.js";
 // TODO: decide if navigation should be handled by the individual panels, or if it should be hoisted up to the index
 
 const template = document.createElement("template");
@@ -134,7 +135,7 @@ export default class searchPage extends HTMLElement {
 
         this.clearElem = this.shadowRoot.getElementById("clear");
         this.clearElem.addEventListener("pointerdown", event => {
-            urlHelper.consumeParams(["unitIds"]);
+            urlHelper.consumeParams(["units"]);
         });
 
         this.unitNameElem.addEventListener("keypress", async event => {
@@ -166,7 +167,7 @@ export default class searchPage extends HTMLElement {
                 card.data = unit;
                 const addRemoveUnitsElem = document.createElement("vpl-add-remove-units");
                 addRemoveUnitsElem.addEventListener("add", event => {
-                    this.addUnit(unit.id);
+                    this.addUnit(unit);
                 });
                 const cardContainer = document.createElement("div");
                 addRemoveUnitsElem.addEventListener("remove", event => {
@@ -183,20 +184,21 @@ export default class searchPage extends HTMLElement {
         }
     }
 
-    addUnit(id) {
+    addUnit(unit) {
         const params = urlHelper.getParams();
-        const unitIds = params.unitIds ? params.unitIds.split(",") : [];
-        unitIds.push(id);
-        urlHelper.setParams({unitIds: unitIds.join(",")});
+        const units = params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
+        units.push(unit);
+        urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
     }
 
     removeUnit(id) {
         const params = urlHelper.getParams();
-        const unitIds = params.unitIds ? params.unitIds.split(",").map(i => parseInt(i)) : [];
-        if (unitIds.includes(id)) {
-            unitIds.splice(unitIds.indexOf(id), 1);
+        const units = params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
+        const firstIndex = units.findIndex(i => i.id === id);
+        if (firstIndex !== -1) {
+            units.splice(firstIndex, 1);
         }
-        urlHelper.setParams({unitIds: unitIds.join(",")});
+        urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
     }
 }
 

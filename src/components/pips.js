@@ -61,6 +61,7 @@ export default class pips extends HTMLElement {
                         const index = [...this.pipsContainerElem.children].indexOf(event.target) + 1;
                         const offset = this.marked === index ? -1 : 0;
                         this.marked = index + offset;
+                        this.dispatchEvent(new CustomEvent("change", {detail: {value: this.marked}}));
                     });
                 }
                 else {
@@ -72,6 +73,7 @@ export default class pips extends HTMLElement {
             if (["additive", "subtractive"].includes(this.mode)) {
                 this.addEventListener("click", event => {
                     this.marked = event.offsetX > this.clientWidth / 2 ? this.marked + 1 : this.marked - 1;
+                    this.dispatchEvent(new CustomEvent("change", {detail: {value: this.marked}}));
                 });
             }
             if (this.mode === "subtractive") {

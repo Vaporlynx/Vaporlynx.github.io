@@ -11,8 +11,8 @@ template.innerHTML = `
         }
         
         #cardBody {
-            height: inherit;
-            width: inherit;
+            height: 100%;
+            width: 100%;
         }
     
         .spacedRow {
@@ -215,6 +215,11 @@ export default class UnitCard extends HTMLElement {
 
         this.imageElem = this.shadowRoot.getElementById("image");
 
+        this.armorElem.addEventListener("change", event => this.handleUnitAttributesChanged(event));
+        this.structureElem.addEventListener("change", event => this.handleUnitAttributesChanged(event));
+        this.overheatElem.addEventListener("change", event => this.handleUnitAttributesChanged(event));
+        this.criticalsElem.addEventListener("change", event => this.handleUnitAttributesChanged(event));
+
         this._data = null;
     }
 
@@ -232,9 +237,12 @@ export default class UnitCard extends HTMLElement {
                 this.shortElem.textContent = val.damage.short;
                 this.mediumElem.textContent = val.damage.medium;
                 this.longElem.textContent = val.damage.long;
-                this.armorElem.totalPips = val.armor;
-                this.structureElem.totalPips = val.structure;
-                this.overheatElem.textContent = val.overheat || 0;
+                this.armorElem.totalPips = val.totalArmor;
+                this.armorElem.marked = val.armor;
+                this.structureElem.totalPips = val.totalStructure;
+                this.structureElem.marked = val.structure;
+                this.overheatElem.textContent = val.totalOverheat || 0;
+                this.overheatElem.marked = val.overheat;
                 this.specialElem.textContent = `Special: ${val.special ? val.special.split(",").join(", ") : ""}`;
                 this.imageElem.src = val.image;
                 let critElem = null;
@@ -260,7 +268,7 @@ export default class UnitCard extends HTMLElement {
                 let tmm = 1;
                 const movement = parseInt(val.movement);
                 if (movement < 5) {
-                    tmm = 0
+                    tmm = 0;
                 }
                 else if (movement < 9) {
                     tmm = 1;
@@ -284,6 +292,11 @@ export default class UnitCard extends HTMLElement {
 
     get data () {
         return this._data;
+    }
+
+    handleUnitAttributesChanged (event) {
+        this.data[event.target.id] = event.detail.value;
+        this.dispatchEvent(new CustomEvent("dataUpdated", {detail: {data: this.data}}));
     }
 }
 
