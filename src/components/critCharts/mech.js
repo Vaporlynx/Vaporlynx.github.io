@@ -42,9 +42,6 @@ export default class mech extends HTMLElement {
         super();
 
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
-
-        this.prefixElem = this.shadowRoot.getElementById("prefix");
-        this.suffixElem = this.shadowRoot.getElementById("suffix");
     }
 }
 
