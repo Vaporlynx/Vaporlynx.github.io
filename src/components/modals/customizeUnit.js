@@ -16,6 +16,21 @@ template.innerHTML = `
         #body {
             width: 60vw;
             height: 40vw;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 3.5vw;
+        }
+
+        #skillLevel {
+            font-size: 3vw;
+        }
+
+        #submit {
+            width: 25vw;
+            height: 6vw;
+            font-size: 4vw;
         }
     </style>
     <div id="body" class="bevel">
