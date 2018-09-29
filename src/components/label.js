@@ -29,7 +29,7 @@ export default class label extends HTMLElement {
     }
 
     static get observedAttributes() {
-        return ["prefix", "suffix", "innerHTML"];
+        return ["prefix", "suffix"];
     }
 
     constructor() {
@@ -48,7 +48,6 @@ export default class label extends HTMLElement {
         switch (name) {
             case "prefix": this.prefix = newValue; break;
             case "suffix": this.suffix = newValue; break;
-            case "innerHTML": this.innerHTML = newValue; break;
         }
     }
 
@@ -58,7 +57,7 @@ export default class label extends HTMLElement {
     }
 
     get prefix () {
-        return this._prefix; 
+        return this._prefix;
     }
 
     set suffix (val) {

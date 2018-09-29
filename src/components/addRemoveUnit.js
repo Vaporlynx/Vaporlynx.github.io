@@ -49,11 +49,11 @@ export default class addRemoveUnits extends HTMLElement {
 
         this.addElem = this.shadowRoot.getElementById("add");
         this.addElem.addEventListener("pointerdown", () => {
-            this.dispatchEvent(new CustomEvent("add"), {detail: {}});
+            this.dispatchEvent(new CustomEvent("add", {detail: {}}));
         });
         this.removeElem = this.shadowRoot.getElementById("remove");
         this.removeElem.addEventListener("pointerdown", () => {
-            this.dispatchEvent(new CustomEvent("remove"), {detail: {}});
+            this.dispatchEvent(new CustomEvent("remove", {detail: {}}));
         });
     }
 }

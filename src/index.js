@@ -18,7 +18,7 @@ const handleNavigation = () => {
         while (pageContainerElem.hasChildNodes()) {
             pageContainerElem.removeChild(pageContainerElem.lastChild);
         }
-        const newPage = document.createElement(`${params.page}-page`)
+        const newPage = document.createElement(`${params.page}-page`);
         pageContainerElem.appendChild(newPage);
     }
 };
@@ -28,7 +28,7 @@ urlHelper.setParams({
     page: "loading",
 }, true);
 const loadingPage = document.createElement("loading-page");
-loadingPage.addEventListener("loaded", ()=> {
+loadingPage.addEventListener("loaded", () => {
     window.addEventListener("urlUpdated", handleNavigation);
     if (initialParams.page === "loading") {
         initialParams.page = "search";
@@ -39,3 +39,40 @@ loadingPage.addEventListener("loaded", ()=> {
 });
 pageContainerElem.appendChild(loadingPage);
 
+// TODO: look at a different way of managing modals
+// this pattern encourages you to hold onto references to modals, but provides no way of notifying you
+// to release that reference when the modal is closed so it can be garbage collected
+const modalContainerElem = document.getElementById("modalLayer");
+let activeModals = [];
+modalContainerElem.addEventListener("pointerdown", event => {
+    if (activeModals.length) {
+        globals.clearModals();
+    }
+});
+
+globals.addModal = modal => {
+    modalContainerElem.appendChild(modal);
+    activeModals.push(modal);
+    modalContainerElem.classList.add("occupied");
+};
+
+globals.clearModals = () => {
+    while (modalContainerElem.hasChildNodes()) {
+        modalContainerElem.removeChild(modalContainerElem.lastChild);
+    }
+    activeModals = [];
+    modalContainerElem.classList.remove("occupied");
+};
+
+globals.removeModal = modal => {
+    const modalIndex = activeModals.indexOf(modal);
+    if (modalIndex !== -1) {
+        activeModals.splice(modalIndex, 1);
+    }
+    modalContainerElem.removeChild(modal);
+    if (!activeModals.length) {
+        modalContainerElem.classList.remove("occupied");
+    }
+};
+
+globals.getModals = () => [...activeModals];

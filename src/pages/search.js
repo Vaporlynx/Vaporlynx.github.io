@@ -187,8 +187,14 @@ export default class searchPage extends HTMLElement {
     addUnit(unit) {
         const params = urlHelper.getParams();
         const units = params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
-        units.push(unit);
-        urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
+        const modal = document.createElement("vpl-customize-unit");
+        modal.pv = unit.pv;
+        globals.addModal(modal);
+        modal.addEventListener("submit", event => {
+            units.push(Object.assign({}, unit, {skill: event.detail.skill}));
+            urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
+            globals.removeModal(modal);
+        })
     }
 
     removeUnit(id) {

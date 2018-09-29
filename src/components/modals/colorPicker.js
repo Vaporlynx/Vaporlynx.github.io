@@ -25,7 +25,7 @@ template.innerHTML = `
     <div id="swatchesContainer"></div>
 `;
 
-export default class pips extends HTMLElement {
+export default class ColorPicker extends HTMLElement {
     static get template() {
       return template;
     }
@@ -65,4 +65,4 @@ export default class pips extends HTMLElement {
     }
 }
 
-customElements.define("vpl-add-unit-modal", pips);
+customElements.define("vpl-add-unit", ColorPicker);

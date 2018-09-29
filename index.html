@@ -45,8 +45,16 @@
             left: 0px;
             width: 100vw;
             height: 100vh;
+            justify-content: center;
+            align-items: center;
             pointer-events: none;
         }
+        #modalLayer.occupied {
+            background-color: #00000054;
+            z-index: 1;
+            pointer-events: all;
+        }
+
     </style>
     <script>
         const globals = {
@@ -64,6 +72,7 @@
     <script type="module" src = "/src/components/unitCard.js"></script>
     <script type="module" src = "/src/components/critCharts/mech.js"></script>
     <script type="module" src = "/src/components/critCharts/vehicle.js"></script>
+    <script type="module" src = "/src/components/modals/customizeUnit.js"></script>
     
     <script type="module" src = "/src/pages/search.js"></script>
     <script type="module" src = "/src/pages/roster.js"></script>

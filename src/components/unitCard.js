@@ -1,3 +1,5 @@
+import * as unitHelper from "../../src/unitHelper.js";
+
 const template = document.createElement("template");
 template.innerHTML = `
     <style>
@@ -253,19 +255,7 @@ export default class UnitCard extends HTMLElement {
                 if (critElem) {
                     this.criticalsElem.appendChild(critElem);
                 }
-                // TODO: look and see if these numbers are driven by a formula, use that if they are.
-                let skillMod = 1;
-                switch (val.skill) {
-                    case 0: skillMod = 2.63; break;
-                    case 1: skillMod = 2.24; break;
-                    case 2: skillMod = 1.82; break;
-                    case 3: skillMod = 1.38; break;
-                    case 4: skillMod = 1.0; break;
-                    case 5: skillMod = 0.86; break;
-                    case 6: skillMod = 0.77; break;
-                    case 7: skillMod = 0.68; break;
-                }
-                this.pvElem.textContent = Math.round(val.pv * skillMod);
+                this.pvElem.textContent = unitHelper.calculatePointValue(val.pv, val.skill);
                 let tmm = 1;
                 const movement = parseInt(val.movement);
                 if (movement < 5) {
