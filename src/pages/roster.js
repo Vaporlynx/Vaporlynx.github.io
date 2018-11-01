@@ -123,14 +123,17 @@ export default class rosterPage extends HTMLElement {
             try {
                 const unParsed = await window.fetch(`/sw-units?unitIds=${units.map(i => i.id).join(",")}`);
                 const unitDefs = JSON.parse(await unParsed.text());
-                unitDefs.forEach((def, index) => {
-                    const card = document.createElement("unit-card");
-                    card.data = Object.assign(def, units.find(i => i.id === def.id));
-                    card.addEventListener("dataUpdated", event => {
-                        this.units[index] = event.detail.data;
-                        this.pushUnits(this.units);
-                    });
-                    this.rosterElem.appendChild(card);
+                this.units.forEach((unit, index) => {
+                    const def = unitDefs.find(def => def.id === unit.id);
+                    if (def) {
+                        const card = document.createElement("unit-card");
+                        card.data = Object.assign({}, def, unit);
+                        card.addEventListener("dataUpdated", event => {
+                            this.units[index] = event.detail.data;
+                            this.pushUnits(this.units);
+                        });
+                        this.rosterElem.appendChild(card);
+                    }
                 });
             }
             catch (err) {
