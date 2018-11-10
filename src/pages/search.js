@@ -121,6 +121,8 @@ export default class searchPage extends HTMLElement {
     constructor() {
         super();
 
+        this.requestId = 0;
+
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
 
         this.unitNameElem = this.shadowRoot.getElementById("unitName");
@@ -157,31 +159,48 @@ export default class searchPage extends HTMLElement {
             this.mechContainerElem.removeChild(this.mechContainerElem.lastChild);
         }
         try {
+            this.requestId++;
             const unitName = name;
             urlHelper.setParams({unitName});
             const unParsed = await window.fetch(`/sw-units?name=${unitName}`);
             this.spinnerElem.classList.remove("show");
-            const data = JSON.parse(await unParsed.text());
-            for (const unit of data) {
-                const card = document.createElement("unit-card");
-                card.data = unit;
-                const addRemoveUnitsElem = document.createElement("vpl-add-remove-units");
-                addRemoveUnitsElem.addEventListener("add", event => {
-                    this.addUnit(unit);
-                });
-                const cardContainer = document.createElement("div");
-                addRemoveUnitsElem.addEventListener("remove", event => {
-                    this.removeUnit(unit.id);
-                });
-                cardContainer.classList.add("cardContainer");
-                cardContainer.appendChild(addRemoveUnitsElem);
-                cardContainer.appendChild(card);
-                this.mechContainerElem.appendChild(cardContainer);
-            }
+            this.buildCards(JSON.parse(await unParsed.text()), this.requestId);
         }
         catch (err) {
             globals.handleError(`Error getting unit: ${err}`);
         }
+    }
+
+    // TODO: need a better solution than this. 
+    // Scale the div that contains these cards so that it is the card height * number of cards 
+    // set up recycling and only have enough card elements created at any time to fill the screen 
+    // Recycle existing cards when the user scrolls so performance is better with very large 
+    // number of cards 
+    buildCards(units, requestId) {
+        if (units.length && requestId === this.requestId) {
+            const unit = units.splice(0, 1)[0];
+            this.buildCard(unit);
+            window.requestIdleCallback(timingData => {
+                this.buildCards(units, requestId);
+            }, {timeout: 10});
+        }
+    }
+
+    buildCard(unit) {
+        const card = document.createElement("unit-card");
+        card.data = unit;
+        const addRemoveUnitsElem = document.createElement("vpl-add-remove-units");
+        addRemoveUnitsElem.addEventListener("add", event => {
+            this.addUnit(unit);
+        });
+        const cardContainer = document.createElement("div");
+        addRemoveUnitsElem.addEventListener("remove", event => {
+            this.removeUnit(unit.id);
+        });
+        cardContainer.classList.add("cardContainer");
+        cardContainer.appendChild(addRemoveUnitsElem);
+        cardContainer.appendChild(card);
+        this.mechContainerElem.appendChild(cardContainer);
     }
 
     addUnit(unit) {
@@ -194,7 +213,7 @@ export default class searchPage extends HTMLElement {
             units.push(Object.assign({}, unit, {skill: event.detail.skill}));
             urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
             globals.removeModal(modal);
-        })
+        });
     }
 
     removeUnit(id) {
