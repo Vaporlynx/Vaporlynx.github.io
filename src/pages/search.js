@@ -182,7 +182,7 @@ export default class searchPage extends HTMLElement {
             this.buildCard(unit);
             window.requestIdleCallback(timingData => {
                 this.buildCards(units, requestId);
-            }, {timeout: 10});
+            }, {timeout: 50});
         }
     }
 

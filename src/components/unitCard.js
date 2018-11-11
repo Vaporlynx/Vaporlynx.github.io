@@ -251,6 +251,7 @@ export default class UnitCard extends HTMLElement {
                 switch (val.type) {
                     case "BM": critElem = document.createElement("vpl-mech-crit-chart"); break;
                     case "CV": critElem = document.createElement("vpl-vehicle-crit-chart"); break;
+                    case "AF": critElem = document.createElement("vpl-aerospace-crit-chart"); break;
                 }
                 if (critElem) {
                     this.criticalsElem.appendChild(critElem);
