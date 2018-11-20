@@ -5,7 +5,7 @@ let loading = false;
 const unitTypes = ["BM", "IM", "PM", "CV", "SV", "AF", "CF", "DS", "DA", "SC", "MS", "CI", "BA"];
 const loadedTypes = [];
 const validSearchParams = [
-  "name",
+  "unitName",
   "type",
   "minPV",
   "maxPV",
@@ -168,7 +168,7 @@ const serveOrFetch = request => {
 const searchUnits = url => {
   const searchParams = {ids: []};
   for (const key of validSearchParams) {
-    const value = url.searchParams.get(key);
+    const value = url.searchParams.get(key.toLowerCase());
     if (value) {
       if (key === "unitIds") {
         searchParams.ids = value.split(",").map(i => parseInt(i));
@@ -189,13 +189,13 @@ const searchUnits = url => {
         if (valid && searchParams.ids.length && !searchParams.ids.includes(unit.id)) {
           valid = false;
         }
-        if (valid && searchParams.name && !unit.name.toLowerCase().includes(searchParams.name.toLowerCase())) {
+        if (valid && searchParams.unitName && !unit.name.toLowerCase().includes(searchParams.unitName.toLowerCase())) {
           valid = false;
         }
-        if (valid && searchParams.minPV && unit.pv <= searchParams.minPV) {
+        if (valid && searchParams.minPV && unit.pv < parseInt(searchParams.minPV)) {
           valid = false;
         }
-        if (valid && searchParams.maxPV && unit.pv >= searchParams.maxPV) {
+        if (valid && searchParams.maxPV && unit.pv > parseInt(searchParams.maxPV)) {
           valid = false;
         }
         if (valid) {
@@ -261,7 +261,7 @@ imageDBConnection.onsuccess = async event => {
 };
 
 self.addEventListener("fetch", event => {
-  const url = new URL(event.request.url);
+  const url = new URL(event.request.url.toLowerCase());
   if (url.pathname === "/sw-units") {
     event.respondWith(searchUnits(url));
   }
@@ -271,7 +271,7 @@ self.addEventListener("fetch", event => {
   else if (url.pathname === "/sw-images") {
     event.respondWith(getImage(url));
   }
-  else if (url.pathname === "/sw-loadStatus") {
+  else if (url.pathname === "/sw-load-status") {
     event.respondWith(new Response(`${!loading ? 1 : loadedTypes.length / unitTypes.length}`));
   }
   // Cache app assets

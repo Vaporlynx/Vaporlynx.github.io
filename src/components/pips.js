@@ -3,15 +3,34 @@ template.innerHTML = `
     <style>
         :host {
             display: flex;
+            --activePipColor: var(--interactiveElementBackgroundColorActive);
+            --inactivePipColor: var(--interactiveElementBackgroundColor);
+            --hoverPipColor: var(--interactiveElementHoverBackgroundColor);
+            --pipIndent: .2em;
         }
-        #pipsContainer input {
-            height: var(--pipSize);
-            width: var(--pipSize);
-        }
+
         .disabled {
             pointer-events: none;
         }
 
+        #pipsContainer {
+            display: flex;
+        }
+
+        .pip {
+            height: var(--pipSize);
+            width: var(--pipSize);
+            background-color: var(--inactivePipColor);
+            clip-path: polygon(var(--pipIndent) 0, calc(100% - var(--pipIndent)) 0, 100% var(--pipIndent), calc(100% - var(--pipIndent)) 100%, var(--pipIndent) 100%, 0 calc(100% - var(--pipIndent)));
+            padding: calc(var(--pipIndent) / 2);
+        }
+        .pip:hover {
+            background-color: var(--hoverPipColor);
+        }
+
+        .checked {
+            background-color: var(--activePipColor);
+        }
     </style>
     <div id="pipsContainer"></div>
 `;
@@ -47,15 +66,14 @@ export default class pips extends HTMLElement {
 
     set totalPips (val) {
         if (val !== this._totalPips) {
-            // TODO: Add recycling instead of just killing all the children
             while (this.pipsContainerElem.hasChildNodes()) {
                 this.pipsContainerElem.removeChild(this.pipsContainerElem.lastChild);
             }
 
             this._totalPips = val;
             for (let i = 0; i < val; i++) {
-                const pip = document.createElement("input");
-                pip.type = "radio";
+                const pip = document.createElement("div");
+                pip.classList.add("pip");
                 if (this.mode === "individual") {
                     pip.addEventListener("click", event => {
                         const index = [...this.pipsContainerElem.children].indexOf(event.target) + 1;
@@ -89,10 +107,10 @@ export default class pips extends HTMLElement {
     set marked (val) {
         val = Math.max(0, Math.min(val, this.totalPips));
         for (let i = 0; i < this.totalPips; i++) {
-            this.pipsContainerElem.children[i].checked = false;
+            this.pipsContainerElem.children[i].classList.toggle("checked", false);
         }
         for (let i = 0; i < val; i++) {
-            this.pipsContainerElem.children[i].checked = true;
+            this.pipsContainerElem.children[i].classList.toggle("checked", true);
         }
         this._marked = val;
     }

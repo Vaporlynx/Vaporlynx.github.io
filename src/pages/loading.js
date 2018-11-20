@@ -62,7 +62,7 @@ export default class rosterPage extends HTMLElement {
 
     async updateLoadStatus() {
         try {
-            const response = await window.fetch("/sw-loadStatus");
+            const response = await window.fetch("/sw-load-status");
             const body = await response.text();
             
             if (response.status !== 404 && parseInt(body) === 1) {

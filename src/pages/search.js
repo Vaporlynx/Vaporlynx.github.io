@@ -2,6 +2,9 @@ import * as urlHelper from "../../src/urlHelper.js";
 import * as unitHelper from "../../src/unitHelper.js";
 // TODO: decide if navigation should be handled by the individual panels, or if it should be hoisted up to the index
 
+
+const advancedParams = ["minPV", "maxPV"];
+
 const template = document.createElement("template");
 template.innerHTML = `
     <style>
@@ -28,7 +31,7 @@ template.innerHTML = `
 
         #controls {
             grid-area: controls;
-            display: flex;
+            position: relative;
         }
     
         #mechContainer {
@@ -96,16 +99,47 @@ template.innerHTML = `
         vpl-add-remove-units {
             z-index: 1;
         }
+
+        #basicControls {
+            height: 100%;
+        }
+
+        #advancedControls {
+            z-index: 1;
+            position: absolute;
+            top: 100%;
+            background-color: var(--backgroundColor);
+            --indentation: .4em;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - var(--indentation)), calc(100% - var(--indentation)) 100%, 0 100%);
+            padding: calc(var(--indentation) / 1.25);
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
-    <div id="controls">
-        <vpl-label prefix="Mech Name:" id="label">
-            <div slot="content" id="searchContainer">
-                <input type="text" id="unitName"></input>
-                <img src="/assets/spinner.svg" id="spinner"></img>
+    <div id="controls" class="spacedColumn">
+        <div id="basicControls" class="spacedRow">
+            <vpl-label prefix="Mech Name:" id="label">
+                <div slot="content" id="searchContainer">
+                    <input type="text" id="unitName"></input>
+                    <img src="/assets/spinner.svg" id="spinner"></img>
+                </div>
+            </vpl-label>
+            <button id="roster">Roster</button>
+            <button id="clear">Clear Roster</button>
+        </div>
+        <div id="advancedControls" class="spacedRow">
+            <div id="expandableControls" class="spacedRow hidden">
+                <vpl-label prefix="Minimum PV">
+                    <input type="number" id="minPV" value="0" min="0" max="100" slot="content"/>
+                </vpl-label>
+                <vpl-label prefix="Maximum PV">
+                    <input type="number" id="maxPV" value="100" min="0" max="100" slot="content"/>
+                </vpl-label>
             </div>
-        </vpl-label>
-        <button id="roster">Roster</button>
-        <button id="clear">Clear Roster</button>
+            <button id="advancedToggle" for="expandToggle">Advanced</button>
+        </div>
     </div>
     <div id="mechContainer"> </div>
 `;
@@ -145,24 +179,47 @@ export default class searchPage extends HTMLElement {
                 this.searchUnit(this.unitNameElem.value);
             }
         });
+
+        this.expandableControlsElem = this.shadowRoot.getElementById("expandableControls");
+        this.minPVElem = this.shadowRoot.getElementById("minPV");
+        this.maxPVElem = this.shadowRoot.getElementById("maxPV");
+
+
+        this.advancedToggleElem = this.shadowRoot.getElementById("advancedToggle");
+        this.advancedToggleElem.addEventListener("pointerdown", event => {
+            this.expandableControlsElem.classList.toggle("hidden");
+        });
     }
 
     connectedCallback() {
+        if (urlHelper.getParams(advancedParams)) {
+            this.expandableControlsElem.classList.toggle("hidden", false);
+        }
         if (urlHelper.getParams().unitName) {
             this.searchUnit(this.unitNameElem.value = urlHelper.consumeParams(["unitName"]).unitName);
         }
     }
 
-    async searchUnit(name) {
+    async searchUnit(unitName) {
         this.spinnerElem.classList.add("show");
         while (this.mechContainerElem.hasChildNodes()) {
             this.mechContainerElem.removeChild(this.mechContainerElem.lastChild);
         }
         try {
             this.requestId++;
-            const unitName = name;
-            urlHelper.setParams({unitName});
-            const unParsed = await window.fetch(`/sw-units?name=${unitName}`);
+            const params = {
+                unitName,
+            };
+            if (this.expandableControlsElem.classList.contains("hidden")) {
+                urlHelper.consumeParams(advancedParams);
+            }
+            else {
+                for (const key of advancedParams) {
+                    params[key] = this[`${key}Elem`].value;
+                }
+            }
+            urlHelper.setParams(params);
+            const unParsed = await window.fetch(`/sw-units?${Object.keys(params).map(key => `${key.toLowerCase()}=${params[key]}`).join("&")}`);
             this.spinnerElem.classList.remove("show");
             this.buildCards(JSON.parse(await unParsed.text()), this.requestId);
         }
