@@ -47,6 +47,10 @@ const getUnits = async () => {
                             cl: Unit.Class,
                             vnt: Unit.Variant,
                             ov: Unit.BFOverheat,
+                            meta: {
+                                pd: parseInt(Unit.DateIntroduced),
+                                tl: Unit.Technology.Id,
+                            },
                         };
                         if (!unitsByType[unit.tp]) {
                             unitsByType[unit.tp] = {};

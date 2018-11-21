@@ -3,7 +3,26 @@ import * as unitHelper from "../../src/unitHelper.js";
 // TODO: decide if navigation should be handled by the individual panels, or if it should be hoisted up to the index
 
 
-const advancedParams = ["minPV", "maxPV"];
+const advancedParams = [
+    "minPV",
+    "maxPV",
+    "minPD",
+    "maxPD",
+    "techLevels",
+    "sizes",
+];
+const sizeParams = [
+    {name: "Light", id: 1},
+    {name: "Medium", id: 2},
+    {name: "Heavy", id: 3},
+    {name: "Assault", id: 4},
+];
+const techLevelParams = [
+    {name: "InnerSphere", id: 1},
+    {name: "Clan", id: 2},
+    {name: "Mixed", id: 3},
+    {name: "Primitive", id: 4},
+];
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -105,7 +124,7 @@ template.innerHTML = `
         }
 
         #advancedControls {
-            z-index: 1;
+            z-index: 2;
             position: absolute;
             top: 100%;
             background-color: var(--backgroundColor);
@@ -126,6 +145,7 @@ template.innerHTML = `
                     <img src="/assets/spinner.svg" id="spinner"></img>
                 </div>
             </vpl-label>
+            <button id="search">Search</button>
             <button id="roster">Roster</button>
             <vpl-label prefix="PV Total:" id="label">
                 <div id="pvTotal" slot="content">0</div>
@@ -133,12 +153,52 @@ template.innerHTML = `
             <button id="clear">Clear Roster</button>
         </div>
         <div id="advancedControls" class="spacedRow">
-            <div id="expandableControls" class="spacedRow hidden">
-                <vpl-label prefix="Minimum PV">
-                    <input type="number" id="minPV" value="0" min="0" max="100" slot="content"/>
+            <div id="expandableControls" class="spacedColumn hidden">
+                <div class="spacedRow">
+                    <vpl-label prefix="Minimum PV">
+                        <input type="number" id="minPV" value="0" min="0" max="100" slot="content"/>
+                    </vpl-label>
+                    <vpl-label prefix="Maximum PV">
+                        <input type="number" id="maxPV" value="100" min="0" max="100" slot="content"/>
+                    </vpl-label>
+                    <vpl-label prefix="Minimum Production Date">
+                        <input type="number" id="minPD" value="2800" min="2000" max="3300" slot="content"/>
+                    </vpl-label>
+                    <vpl-label prefix="Maximum Production Date">
+                        <input type="number" id="maxPD" value="3050" min="2000" max="3300" slot="content"/>
+                    </vpl-label>
+                </div>
+                <vpl-label prefix="Sizes: ">
+                    <div id="sizesContainer"  slot="content" class="spacedRow">
+                        <vpl-label prefix="1 (Light)">
+                            <input type="checkbox" id="sizeLight" checked="true" slot="content"/>
+                        </vpl-label>
+                        <vpl-label prefix="2 (Medium)">
+                            <input type="checkbox" id="sizeMedium" checked="true" slot="content"/>
+                        </vpl-label>
+                        <vpl-label prefix="3 (Heavy)">
+                            <input type="checkbox" id="sizeHeavy" checked="true" slot="content"/>
+                        </vpl-label>
+                        <vpl-label prefix="4 (Assault)">
+                            <input type="checkbox" id="sizeAssault" checked="true" slot="content"/>
+                        </vpl-label>
+                    </div>
                 </vpl-label>
-                <vpl-label prefix="Maximum PV">
-                    <input type="number" id="maxPV" value="100" min="0" max="100" slot="content"/>
+                <vpl-label prefix="Tech Levels: ">
+                    <div id="techLevelContainer"  slot="content" class="spacedRow">
+                        <vpl-label prefix="Inner Sphere">
+                            <input type="checkbox" id="techLevelInnerSphere" checked="true" slot="content"/>
+                        </vpl-label>
+                        <vpl-label prefix="Clan">
+                            <input type="checkbox" id="techLevelClan" checked="true" slot="content"/>
+                        </vpl-label>
+                        <vpl-label prefix="Mixed">
+                            <input type="checkbox" id="techLevelMixed" checked="true" slot="content"/>
+                        </vpl-label>
+                        <vpl-label prefix="Primitive">
+                            <input type="checkbox" id="techLevelPrimitive" checked="true" slot="content"/>
+                        </vpl-label>
+                    </div>
                 </vpl-label>
             </div>
             <button id="advancedToggle" for="expandToggle">Advanced</button>
@@ -162,6 +222,8 @@ export default class searchPage extends HTMLElement {
 
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
 
+        this.controlsElem = this.shadowRoot.getElementById("controls");
+
         this.unitNameElem = this.shadowRoot.getElementById("unitName");
         this.mechContainerElem = this.shadowRoot.getElementById("mechContainer");
         this.spinnerElem = this.shadowRoot.getElementById("spinner");
@@ -180,7 +242,12 @@ export default class searchPage extends HTMLElement {
             this.pvTotalElem.innerText = 0;
         });
 
-        this.unitNameElem.addEventListener("keypress", async event => {
+
+        this.searchElem = this.shadowRoot.getElementById("search");
+        this.searchElem.addEventListener("pointerdown", event => {
+            this.searchUnit(this.unitNameElem.value);
+        });
+        this.controlsElem.addEventListener("keypress", async event => {
             if (event.key ===  "Enter") {
                 this.searchUnit(this.unitNameElem.value);
             }
@@ -189,7 +256,16 @@ export default class searchPage extends HTMLElement {
         this.expandableControlsElem = this.shadowRoot.getElementById("expandableControls");
         this.minPVElem = this.shadowRoot.getElementById("minPV");
         this.maxPVElem = this.shadowRoot.getElementById("maxPV");
-
+        this.minPDElem = this.shadowRoot.getElementById("minPD");
+        this.maxPDElem = this.shadowRoot.getElementById("maxPD");
+        this.sizeLightElem = this.shadowRoot.getElementById("sizeLight");
+        this.sizeMediumElem = this.shadowRoot.getElementById("sizeMedium");
+        this.sizeHeavyElem = this.shadowRoot.getElementById("sizeHeavy");
+        this.sizeAssaultElem = this.shadowRoot.getElementById("sizeAssault");
+        this.techLevelInnerSphereElem = this.shadowRoot.getElementById("techLevelInnerSphere");
+        this.techLevelClanElem = this.shadowRoot.getElementById("techLevelClan");
+        this.techLevelMixedElem = this.shadowRoot.getElementById("techLevelMixed");
+        this.techLevelPrimitiveElem = this.shadowRoot.getElementById("techLevelPrimitive");
 
         this.advancedToggleElem = this.shadowRoot.getElementById("advancedToggle");
         this.advancedToggleElem.addEventListener("pointerdown", event => {
@@ -227,7 +303,25 @@ export default class searchPage extends HTMLElement {
             }
             else {
                 for (const key of advancedParams) {
-                    params[key] = this[`${key}Elem`].value;
+                    switch (key) {
+                        case "techLevels":
+                            params[key] = techLevelParams.reduce((values, key) => {
+                                if (this[`techLevel${key.name}Elem`].checked) {
+                                    values.push(key.id);
+                                }
+                                return values;
+                            }, []).join(",");
+                        break;
+                        case "sizes":
+                            params[key] = sizeParams.reduce((values, key) => {
+                                if (this[`size${key.name}Elem`].checked) {
+                                    values.push(key.id);
+                                }
+                                return values;
+                            }, []).join(",");
+                        break;
+                        default: params[key] = this[`${key}Elem`].value; break;
+                    }
                 }
             }
             urlHelper.setParams(params);
