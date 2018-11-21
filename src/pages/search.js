@@ -127,6 +127,9 @@ template.innerHTML = `
                 </div>
             </vpl-label>
             <button id="roster">Roster</button>
+            <vpl-label prefix="PV Total:" id="label">
+                <div id="pvTotal" slot="content">0</div>
+            </vpl-label>
             <button id="clear">Clear Roster</button>
         </div>
         <div id="advancedControls" class="spacedRow">
@@ -169,9 +172,12 @@ export default class searchPage extends HTMLElement {
             });
         });
 
+        this.pvTotalElem = this.shadowRoot.getElementById("pvTotal");
+
         this.clearElem = this.shadowRoot.getElementById("clear");
         this.clearElem.addEventListener("pointerdown", event => {
             urlHelper.consumeParams(["units"]);
+            this.pvTotalElem.innerText = 0;
         });
 
         this.unitNameElem.addEventListener("keypress", async event => {
@@ -192,11 +198,17 @@ export default class searchPage extends HTMLElement {
     }
 
     connectedCallback() {
-        if (urlHelper.getParams(advancedParams)) {
+        const params = urlHelper.getParams();
+        if (params.advancedParams && params.advancedParams.length) {
             this.expandableControlsElem.classList.toggle("hidden", false);
         }
-        if (urlHelper.getParams().unitName) {
+        if (params.unitName) {
             this.searchUnit(this.unitNameElem.value = urlHelper.consumeParams(["unitName"]).unitName);
+        }
+
+        const units = params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
+        if (units.length) {
+            this.sumPointValue(units);
         }
     }
 
@@ -270,6 +282,7 @@ export default class searchPage extends HTMLElement {
             units.push(Object.assign({}, unit, event.detail));
             urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
             globals.removeModal(modal);
+            this.sumPointValue(units);
         });
     }
 
@@ -281,6 +294,27 @@ export default class searchPage extends HTMLElement {
             units.splice(firstIndex, 1);
         }
         urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
+        this.sumPointValue(units);
+    }
+
+    async sumPointValue(units) {
+        let pvTotal = 0;
+        if (units.length) {
+            try {
+                const unParsed = await window.fetch(`/sw-units?unitIds=${units.map(i => i.id).join(",")}`);
+                const unitDefs = JSON.parse(await unParsed.text());
+                units.forEach((unit, index) => {
+                    const def = unitDefs.find(def => def.id === unit.id);
+                    if (def) {
+                        pvTotal += unitHelper.calculatePointValue(def.pv, unit.skill);
+                    }
+                });
+            }
+            catch (err) {
+                globals.handleError(`Error getting unit: ${err}`);
+            }
+        }
+        this.pvTotalElem.innerText = pvTotal;
     }
 }
 

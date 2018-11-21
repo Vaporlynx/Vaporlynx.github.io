@@ -45,7 +45,11 @@ template.innerHTML = `
     <div id="controls">
         <button id="search">Search</button>
         <vpl-label prefix="Number of columns:" id="label">
-        <input type="number" id="columnCount" value="1" min="1" max="5" slot="content"/>
+            <input type="number" id="columnCount" value="1" min="1" max="5" slot="content"/>
+        </vpl-label>
+        <vpl-label prefix="PV Total:" id="label">
+            <div id="pvTotal" slot="content"></div>
+        </vpl-label>
     </div>
     <div id="roster"> </div>
 `;
@@ -64,6 +68,8 @@ export default class rosterPage extends HTMLElement {
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
 
         this.rosterElem = this.shadowRoot.getElementById("roster");
+
+        this.pvTotalElem = this.shadowRoot.getElementById("pvTotal");
 
         this._units = [];
 
@@ -119,15 +125,17 @@ export default class rosterPage extends HTMLElement {
         while (this.rosterElem.hasChildNodes()) {
             this.rosterElem.removeChild(this.rosterElem.lastChild);
         }
+        let pvTotal = 0;
         if (units.length) {
             try {
                 const unParsed = await window.fetch(`/sw-units?unitIds=${units.map(i => i.id).join(",")}`);
                 const unitDefs = JSON.parse(await unParsed.text());
-                this.units.forEach((unit, index) => {
+                units.forEach((unit, index) => {
                     const def = unitDefs.find(def => def.id === unit.id);
                     if (def) {
                         const card = document.createElement("unit-card");
                         card.data = Object.assign({}, def, unit);
+                        pvTotal += unitHelper.calculatePointValue(def.pv, unit.skill);
                         card.addEventListener("dataUpdated", event => {
                             this.units[index] = event.detail.data;
                             this.pushUnits(this.units);
@@ -140,6 +148,7 @@ export default class rosterPage extends HTMLElement {
                 globals.handleError(`Error getting unit: ${err}`);
             }
         }
+        this.pvTotalElem.innerText = pvTotal;
     }
 }
 
