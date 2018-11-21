@@ -267,7 +267,7 @@ export default class searchPage extends HTMLElement {
         modal.pv = unit.pv;
         globals.addModal(modal);
         modal.addEventListener("submit", event => {
-            units.push(Object.assign({}, unit, {skill: event.detail.skill}));
+            units.push(Object.assign({}, unit, event.detail));
             urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
             globals.removeModal(modal);
         });

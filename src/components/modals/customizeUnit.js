@@ -32,10 +32,18 @@ template.innerHTML = `
             height: 6vw;
             font-size: 4vw;
         }
+
+        input {
+            font-size: 3vw;
+        }
     </style>
     <div id="body" class="bevel">
         <vpl-label id="skillLabel" prefix="Pilot skill:" suffix="PV:">
             <input type="number" id="skillLevel" value="4" min="0" max="7" slot="content"/>
+        </vpl-label>
+
+        <vpl-label prefix="Unit Notes:" id="label">
+            <input type="text" id="note" slot="content"></input>
         </vpl-label>
         <button id="submit">Add Unit</button>
     </div>
@@ -53,6 +61,11 @@ export default class CustomizeUnit extends HTMLElement {
     constructor() {
         super();
 
+        // Prevent clickthrough to the modal layer's pointerDown listener
+        this.addEventListener("pointerdown", event => {
+            event.stopPropagation();
+        });
+
         this._pv = 0;
 
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
@@ -63,16 +76,14 @@ export default class CustomizeUnit extends HTMLElement {
             this.skillLabelElem.suffix = `PV: ${unitHelper.calculatePointValue(this._pv, parseInt(this.skillLevelElem.value))}`;
         });
 
+        this.noteElem = this.shadowRoot.getElementById("note");
+
         this.submitElem = this.shadowRoot.getElementById("submit");
         this.submitElem.addEventListener("pointerdown", event => {
             this.dispatchEvent(new CustomEvent("submit", {detail: {
                 skill: parseInt(this.skillLevelElem.value),
+                note: this.noteElem.value || "",
             }}));
-        });
-
-        // Prevent clickthrough to the modal layer's pointerDown listener
-        this.addEventListener("pointerdown", event => {
-            event.stopPropagation();
         });
     }
 

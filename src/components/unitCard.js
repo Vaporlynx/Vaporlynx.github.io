@@ -11,6 +11,10 @@ template.innerHTML = `
             padding: 10px;
             --bevelBgColor: var(--nonInteractiveElement2BackgroundColor);
         }
+
+        .hidden {
+            display: none;
+        }
         
         #cardBody {
             height: 100%;
@@ -73,7 +77,8 @@ template.innerHTML = `
             justify-content: space-around;
         }
 
-        #name {
+        #noteContainer {
+            width: 60%;
         }
 
         #pvContainer {
@@ -111,6 +116,9 @@ template.innerHTML = `
         <div id="header" class="spacedRow">
             <div id="name" class="spacedColumn bevel">
             </div>
+            <vpl-label prefix="Note:" id="noteContainer" class="bevel hidden">
+                <div id="note" slot="content"></div>
+            </vpl-label>
             <vpl-label prefix="PV:" id="pvContainer" class="bevel">
                 <div id="pv" slot="content"></div>
             </vpl-label>
@@ -195,6 +203,8 @@ export default class UnitCard extends HTMLElement {
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
 
         this.nameElem = this.shadowRoot.getElementById("name");
+        this.noteContainerElem = this.shadowRoot.getElementById("noteContainer");
+        this.noteElem = this.shadowRoot.getElementById("note");
         this.pvElem = this.shadowRoot.getElementById("pv");
         this.typeElem = this.shadowRoot.getElementById("type");
         this.sizeElem = this.shadowRoot.getElementById("size");
@@ -231,6 +241,10 @@ export default class UnitCard extends HTMLElement {
             if (val !== this._data) {
                 this._data = val;
                 this.nameElem.textContent = val.name;
+                if (val.note) {
+                    this.noteElem.textContent = val.note;
+                    this.noteContainerElem.classList.remove("hidden");
+                }
                 this.typeElem.textContent = val.type;
                 this.sizeElem.textContent = val.size;
                 this.movementElem.textContent = val.movement;
