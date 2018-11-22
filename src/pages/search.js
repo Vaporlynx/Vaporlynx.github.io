@@ -282,7 +282,7 @@ export default class searchPage extends HTMLElement {
             this.searchUnit(this.unitNameElem.value = urlHelper.consumeParams(["unitName"]).unitName);
         }
 
-        const units = params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
+        const units = params.units ? params.units.map(i => unitHelper.decode(i)) : [];
         if (units.length) {
             this.sumPointValue(units);
         }
@@ -334,11 +334,11 @@ export default class searchPage extends HTMLElement {
         }
     }
 
-    // TODO: need a better solution than this. 
-    // Scale the div that contains these cards so that it is the card height * number of cards 
-    // set up recycling and only have enough card elements created at any time to fill the screen 
-    // Recycle existing cards when the user scrolls so performance is better with very large 
-    // number of cards 
+    // TODO: need a better solution than this.
+    // Scale the div that contains these cards so that it is the card height * number of cards
+    // set up recycling and only have enough card elements created at any time to fill the screen
+    // Recycle existing cards when the user scrolls so performance is better with very large
+    // number of cards
     buildCards(units, requestId) {
         if (units.length && requestId === this.requestId) {
             const unit = units.splice(0, 1)[0];
@@ -368,13 +368,13 @@ export default class searchPage extends HTMLElement {
 
     addUnit(unit) {
         const params = urlHelper.getParams();
-        const units = params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
+        const units = params.units ? params.units.map(i => unitHelper.decode(i)) : [];
         const modal = document.createElement("vpl-customize-unit");
         modal.pv = unit.pv;
         globals.addModal(modal);
         modal.addEventListener("submit", event => {
             units.push(Object.assign({}, unit, event.detail));
-            urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
+            urlHelper.setParams({units: units.map(i => unitHelper.encode(i))});
             globals.removeModal(modal);
             this.sumPointValue(units);
         });
@@ -382,12 +382,12 @@ export default class searchPage extends HTMLElement {
 
     removeUnit(id) {
         const params = urlHelper.getParams();
-        const units = params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
+        const units = params.units ? params.units.map(i => unitHelper.decode(i)) : [];
         const firstIndex = units.findIndex(i => i.id === id);
         if (firstIndex !== -1) {
             units.splice(firstIndex, 1);
         }
-        urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
+        urlHelper.setParams({units: units.map(i => unitHelper.encode(i))});
         this.sumPointValue(units);
     }
 

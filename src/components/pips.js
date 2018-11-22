@@ -7,6 +7,8 @@ template.innerHTML = `
             --inactivePipColor: var(--interactiveElementBackgroundColor);
             --hoverPipColor: var(--interactiveElementHoverBackgroundColor);
             --pipIndent: .2em;
+            --pipHeight: 1em;
+            --pipWidth: 1em;
         }
 
         .disabled {
@@ -18,8 +20,8 @@ template.innerHTML = `
         }
 
         .pip {
-            height: var(--pipSize);
-            width: var(--pipSize);
+            height: var(--pipHeight);
+            width: var(--pipWidth);
             background-color: var(--inactivePipColor);
             clip-path: polygon(var(--pipIndent) 0, calc(100% - var(--pipIndent)) 0, 100% var(--pipIndent), calc(100% - var(--pipIndent)) 100%, var(--pipIndent) 100%, 0 calc(100% - var(--pipIndent)));
             padding: calc(var(--pipIndent) / 2);

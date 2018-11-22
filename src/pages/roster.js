@@ -114,11 +114,11 @@ export default class rosterPage extends HTMLElement {
 
     pullUnits() {
         const params = urlHelper.getParams();
-        return params.units ? params.units.split(",").map(i => unitHelper.decode(i)) : [];
+        return params.units ? params.units.map(i => unitHelper.decode(i)) : [];
     }
 
     pushUnits(units) {
-        urlHelper.setParams({units: units.map(i => unitHelper.encode(i)).join(",")});
+        urlHelper.setParams({units: units.map(i => unitHelper.encode(i))});
     }
 
     async buildRoster(units) {

@@ -43,6 +43,7 @@ template.innerHTML = `
             height: 10%;
             font-weight: bold;
             font-size: 125%;
+            align-items: center;
         }
 
         #upperDetails {
@@ -55,6 +56,7 @@ template.innerHTML = `
         }
         #mainDetails div {
             height: 30%;
+            align-items: center;
         }
 
         #lowerDetails {
@@ -91,6 +93,9 @@ template.innerHTML = `
         #health {
             height: 40%;
             justify-content: space-between;
+        }
+        #health vpl-label vpl-pips {
+            flex-wrap: wrap;
         }
 
         #special {

@@ -1,9 +1,9 @@
 const encodeKeys = ["id", "skill", "armor", "structure", "note"];
-const delimiter = "|";
+const delimiter = ",";
 
 export const encode = unit => {
     return encodeKeys.reduce((unitString, key, index) => {
-        let value = encodeURI(unit[key]);
+        let value = unit[key];
         if (key === "note") {
             value = value.substring(0, 128);
         }
@@ -20,7 +20,7 @@ export const decode = unitString => {
     return unitString.split(delimiter).reduce((unit, val, index) => {
         const key = encodeKeys[index];
         switch (key) {
-            case "note": unit[key] = decodeURI(val); break;
+            case "note": unit[key] = val; break;
             default: unit[key] = parseInt(val); break;
         }
         return unit;
