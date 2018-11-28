@@ -1,3 +1,18 @@
+importScripts("/src/lib/fuse.min.js");
+let fuse = null;
+const fuseOptions = {
+  shouldSort: true,
+  threshold: 0.6,
+  includeScore: true,
+  location: 0,
+  distance: 100,
+  maxPatternLength: 32,
+  minMatchCharLength: 2,
+  keys: [
+    "name",
+  ],
+};
+
 let unitDB = null;
 let imageDB = null;
 let loading = false;
@@ -14,6 +29,7 @@ const validSearchParams = [
   "maxPD",
   "techLevels",
   "sizes",
+  "specials",
 ];
 
 const handleError = err => {
@@ -183,6 +199,9 @@ const searchUnits = url => {
       if (["unitIds", "techLevels", "sizes"].includes(key)) {
         searchParams[key] = value.split(",").map(i => parseInt(i));
       }
+      else if (key === "specials") {
+        searchParams[key] = value.split(",");
+      }
       else {
         searchParams[key] = value;
       }
@@ -191,6 +210,9 @@ const searchUnits = url => {
   return new Promise(async (resolve, reject) => {
     let unitsSearched = 0;
     let results = [];
+
+    // TODO: this should probably be pulled out into a separate function that suggests names as you type
+    // const matchedNames = searchParams.unitName && searchParams.unitName.length ? fuse.search(searchParams.unitName) : [];
     for (const type of searchParams.types || unitTypes) {
       const units = await getUnits(type);
       for (const unit of units) {
@@ -220,6 +242,14 @@ const searchUnits = url => {
         if (valid && searchParams.sizes && searchParams.sizes.length && !searchParams.sizes.includes(unit.size)) {
           valid = false;
         }
+        if (valid && searchParams.specials && searchParams.specials.length) {
+          for (const special of searchParams.specials) {
+            if (!unit.special || !unit.special.toLowerCase().includes(special)) {
+              valid = false;
+              break;
+            }
+          }
+        }
         if (valid) {
           results.push(Object.assign(unit, {totalArmor: unit.armor, totalStructure: unit.structure}));
         }
@@ -234,48 +264,19 @@ const searchUnits = url => {
     }
     const response = new Response(JSON.stringify(results));
     resolve(response);
-    // Don't sync with MUL it is not HTTPS
-    // const queryString = Object.keys(searchParams).reduce((queryString, key) => {
-    //   if (key === "ids") {
-    //     return queryString;
-    //   }
-    //   else {
-    //     return `${queryString}${key}=${searchParams[key]}`;
-    //   }
-    // }, "?");
-    // fetch(`http://masterunitlist.info/Unit/QuickList${queryString}`)
-    //   .then(request => request.text()).then(unParsed => JSON.parse(unParsed).Units).then(data => {
-    //   for (const datum of data) {
-    //     const unit = {
-    //       id: datum.Id,
-    //       name: datum.Name,
-    //       pv: datum.BFPointValue,
-    //       armor: datum.BFArmor,
-    //       structure: datum.BFStructure,
-    //       damage: {
-    //         short: datum.BFDamageShort,
-    //         medium: datum.BFDamageMedium,
-    //         long: datum.BFDamageLong,
-    //       },
-    //       movement: datum.BFMove,
-    //       image: datum.ImageUrl,
-    //       type: datum.BFType,
-    //       size: datum.BFSize,
-    //       role: datum.Role.Name,
-    //       skill: datum.Skill || 4,
-    //       special: datum.BFAbilities,
-    //       class: datum.Class,
-    //       variant: datum.Variant,
-    //     };
-    //     setUnit(unit.type || "null", unit);
-    //   }
-    // }).catch(console.log);
   });
 };
 
 unitDBConnection.onsuccess = async event => {
   self.clients.claim();
   unitDB = event.target.result;
+  // build fuse stuff
+  const units = [];
+  for (const type of unitTypes) {
+    const unitsByType = await getUnits(type);
+    units.push(...unitsByType);
+  }
+  fuse = new Fuse(units, fuseOptions);
 };
 
 imageDBConnection.onsuccess = async event => {

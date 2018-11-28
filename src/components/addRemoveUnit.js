@@ -3,7 +3,7 @@ template.innerHTML = `
     <style>
         :host {
             display: flex;
-            width: 200px;
+            width: 160px;
             height: 50px;  
             background-color: var(--nonInteractiveElementBackgroundColor);
             color: var(--nonInteractiveElementBackgroundFontColor);
@@ -32,9 +32,9 @@ template.innerHTML = `
         }
     </style>
 
-    <div id="add">+</div>
+    <button id="add"><img src="/assets/plus.svg"></img></button>
     <img src="/assets/mech.svg" id="mech"></img>
-    <div id="remove">-</div>
+    <button id="remove"><img src="/assets/minus.svg"></img></button>
 `;
 
 export default class addRemoveUnits extends HTMLElement {
