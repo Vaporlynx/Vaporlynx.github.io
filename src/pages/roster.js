@@ -14,7 +14,7 @@ template.innerHTML = `
             width: 100vw;
 
             --cardRows: 1;
-            --cardSizeOffset: 0.9;
+            --cardSizeOffset: 0.95;
         }
 
         #controls {

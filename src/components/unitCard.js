@@ -10,6 +10,9 @@ template.innerHTML = `
             color: var(--nonInteractiveElementBackgroundFontColor);
             padding: 10px;
             --bevelBgColor: var(--nonInteractiveElement2BackgroundColor);
+            border: .1em solid;
+            border-color: var(--nonInteractiveElementBackgroundColor);
+            box-sizing: border-box;
         }
 
         .hidden {
@@ -249,6 +252,9 @@ export default class UnitCard extends HTMLElement {
                 if (val.note) {
                     this.noteElem.textContent = val.note;
                     this.noteContainerElem.classList.remove("hidden");
+                }
+                if (val.squad) {
+                    this.style.borderColor = `#${val.squad}`;
                 }
                 this.typeElem.textContent = val.type;
                 this.sizeElem.textContent = val.size;

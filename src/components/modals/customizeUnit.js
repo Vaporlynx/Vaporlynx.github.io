@@ -45,6 +45,8 @@ template.innerHTML = `
         <vpl-label prefix="Unit Notes:" id="label">
             <input type="text" id="note" slot="content"></input>
         </vpl-label>
+        <vpl-color-picker id="colorPicker">
+        </vpl-color-picker>
         <button id="submit">Add Unit</button>
     </div>
 `;
@@ -78,11 +80,15 @@ export default class CustomizeUnit extends HTMLElement {
 
         this.noteElem = this.shadowRoot.getElementById("note");
 
+
+        this.colorPickerElem = this.shadowRoot.getElementById("colorPicker");
+
         this.submitElem = this.shadowRoot.getElementById("submit");
         this.submitElem.addEventListener("pointerdown", event => {
             this.dispatchEvent(new CustomEvent("submit", {detail: {
                 skill: parseInt(this.skillLevelElem.value),
                 note: this.noteElem.value || "",
+                squad: this.colorPickerElem.selectedColor,
             }}));
         });
     }
