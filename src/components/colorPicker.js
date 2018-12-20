@@ -3,7 +3,7 @@ let colors = [
     "FF0000", "FF9900", "99CC00", "33CCCC", "3366FF", "800080",
     "FF00FF", "FFCC00",
 ];
-const colorSeed = Math.ceil(colors.length * Math.random());
+let colorSeed = Math.ceil(colors.length * Math.random());
 
 const template = document.createElement("template");
 template.innerHTML = `
@@ -78,6 +78,7 @@ export default class ColorPicker extends HTMLElement {
                 }
                 this._selectedColor = elem.style.backgroundColor = color;
                 this.selectedSwatchElem.style.backgroundColor = `#${this.colors[index]}`;
+                colorSeed = index;
             });
             this.swatchesContainerElem.appendChild(elem);
         });

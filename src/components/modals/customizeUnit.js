@@ -45,6 +45,10 @@ template.innerHTML = `
         <vpl-label prefix="Unit Notes:" id="label">
             <input type="text" id="note" slot="content"></input>
         </vpl-label>
+
+        <vpl-label prefix="Squad Color">
+            <div slot="content"></div>
+        </vpl-label>
         <vpl-color-picker id="colorPicker">
         </vpl-color-picker>
         <button id="submit">Add Unit</button>
