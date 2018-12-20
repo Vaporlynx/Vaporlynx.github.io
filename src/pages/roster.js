@@ -130,7 +130,8 @@ export default class rosterPage extends HTMLElement {
             try {
                 const unParsed = await window.fetch(`/sw-units?unitIds=${units.map(i => i.id).join(",")}`);
                 const unitDefs = JSON.parse(await unParsed.text());
-                units.forEach((unit, index) => {
+                
+                units.sort((a, b) => a.squad > b.squad ? 1 : -1).forEach((unit, index) => {
                     const def = unitDefs.find(def => def.id === unit.id);
                     if (def) {
                         const card = document.createElement("unit-card");
