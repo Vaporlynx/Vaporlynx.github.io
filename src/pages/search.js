@@ -319,6 +319,7 @@ export default class searchPage extends HTMLElement {
                 ]) {
                 elem.checked = true;
             }
+            this.specialsElem.value = "";
         });
     }
 

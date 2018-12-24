@@ -64,17 +64,23 @@ export default class rosterPage extends HTMLElement {
         try {
             const response = await window.fetch("/sw-load-status");
             const body = await response.text();
-            
-            if (response.status !== 404 && parseInt(body) === 1) {
-                this.progressIndicatorElem.prefix = "Loading 100%";
-                this.loadingContainerElem.classList.add("hidden");
-                this.dispatchEvent(new CustomEvent("loaded"));
+            if (response.status !== 404) {
+                if (parseInt(body) === 1) {
+                    this.progressIndicatorElem.prefix = "Loading 100%";
+                    this.loadingContainerElem.classList.add("hidden");
+                    this.dispatchEvent(new CustomEvent("loaded"));
+                }
+                else {
+                    this.progressIndicatorElem.prefix = `Loading ${Math.floor(parseInt(body * 100))}%`;
+                    setTimeout(() => {
+                        this.updateLoadStatus();
+                    }, 100);
+                }
             }
             else {
-                this.progressIndicatorElem.prefix = `Loading ${Math.floor(parseFloat(body || 0) * 100)}%`;
                 setTimeout(() => {
                     this.updateLoadStatus();
-                }, 100);
+                }, 250);
             }
         }
         catch (err) {
