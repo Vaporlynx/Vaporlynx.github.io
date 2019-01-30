@@ -30,6 +30,12 @@ const validSearchParams = [
   "techLevels",
   "sizes",
   "specials",
+  "minSpeed",
+  "maxSpeed",
+  "minDamage",
+  "maxDamage",
+  "minTMM",
+  "maxTMM",
 ];
 
 const handleError = err => {
@@ -217,7 +223,31 @@ const searchUnits = url => {
       const units = await getUnits(type);
       for (const unit of units) {
         unitsSearched++;
+        // TODO: these if statements are very similar.  Look at programatic way to organize them, maintain maintainability 
         let valid = true;
+        const parsedMove = unit.movement.replace(/[\\"a-z]/ig, "").split("/").map(i => parseInt(i));
+        const parsedDamage = [unit.damage.short, unit.damage.medium, unit.damage.long];
+        // TODO: web service workers don't support module imports?
+        let targetMovementModifier = 0;
+        if (parsedMove[0] < 5) {
+          targetMovementModifier = 0;
+        }
+        else if (parsedMove[0] < 9) {
+            targetMovementModifier = 1;
+        }
+        else if (parsedMove[0] < 13) {
+            targetMovementModifier = 2;
+        }
+        else if (parsedMove[0] < 19) {
+            targetMovementModifier = 3;
+        }
+        else if (parsedMove[0] < 35) {
+            targetMovementModifier = 4;
+        }
+        else if (parsedMove[0] >= 35) {
+            targetMovementModifier = 5;
+        }
+
         if (valid && searchParams.unitIds && searchParams.unitIds.length && !searchParams.unitIds.includes(unit.id)) {
           valid = false;
         }
@@ -228,6 +258,24 @@ const searchUnits = url => {
           valid = false;
         }
         if (valid && searchParams.maxPV && unit.pv > parseInt(searchParams.maxPV)) {
+          valid = false;
+        }
+        if (valid && searchParams.minSpeed && parsedMove.every(i => i < parseInt(searchParams.minSpeed))) {
+          valid = false;
+        }
+        if (valid && searchParams.maxSpeed && parsedMove.every(i => i > parseInt(searchParams.maxSpeed))) {
+          valid = false;
+        }
+        if (valid && searchParams.minDamage && parsedDamage.every(i => i < parseInt(searchParams.minDamage))) {
+          valid = false;
+        }
+        if (valid && searchParams.maxDamage && parsedDamage.every(i => i > parseInt(searchParams.maxDamage))) {
+          valid = false;
+        }
+        if (valid && searchParams.minTMM && targetMovementModifier < parseInt(searchParams.minTMM)) {
+          valid = false;
+        }
+        if (valid && searchParams.maxTMM && targetMovementModifier > parseInt(searchParams.maxTMM)) {
           valid = false;
         }
         if (valid && searchParams.minPD && unit.metadata.productionDate < parseInt(searchParams.minPD)) {
