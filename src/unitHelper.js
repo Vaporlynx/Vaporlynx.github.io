@@ -39,3 +39,26 @@ export const calculatePointValue = (val, skill) => {
         return val + (Math.ceil((val - 7) / 5) + 1) * (4 - skill);
     }
 };
+
+export const calculateTMM = val => {
+    let targetMovementModifier = 0;
+        if (val < 5) {
+          targetMovementModifier = 0;
+        }
+        else if (val < 9) {
+            targetMovementModifier = 1;
+        }
+        else if (val < 13) {
+            targetMovementModifier = 2;
+        }
+        else if (val < 19) {
+            targetMovementModifier = 3;
+        }
+        else if (val < 35) {
+            targetMovementModifier = 4;
+        }
+        else if (val >= 35) {
+            targetMovementModifier = 5;
+        }
+    return targetMovementModifier;
+}

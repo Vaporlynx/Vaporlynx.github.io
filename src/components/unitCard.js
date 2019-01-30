@@ -282,27 +282,7 @@ export default class UnitCard extends HTMLElement {
                     this.criticalsElem.appendChild(critElem);
                 }
                 this.pvElem.textContent = unitHelper.calculatePointValue(val.pv, val.skill);
-                let tmm = 1;
-                const movement = parseInt(val.movement);
-                if (movement < 5) {
-                    tmm = 0;
-                }
-                else if (movement < 9) {
-                    tmm = 1;
-                }
-                else if (movement < 13) {
-                    tmm = 2;
-                }
-                else if (movement < 19) {
-                    tmm = 3;
-                }
-                else if (movement < 35) {
-                    tmm = 4;
-                }
-                else if (movement >= 35) {
-                    tmm = 5;
-                }
-                this.movementModifierElem.textContent = tmm;
+                this.movementModifierElem.textContent = unitHelper.calculateTMM(parseInt(val.movement));
             }
         }, 1);
     }

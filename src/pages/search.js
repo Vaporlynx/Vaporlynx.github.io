@@ -2,7 +2,6 @@ import * as urlHelper from "../../src/urlHelper.js";
 import * as unitHelper from "../../src/unitHelper.js";
 // TODO: decide if navigation should be handled by the individual panels, or if it should be hoisted up to the index
 
-
 const advancedParams = [
     "minPV",
     "maxPV",
@@ -11,7 +10,20 @@ const advancedParams = [
     "techLevels",
     "sizes",
     "specials",
+    "minSpeed",
+    "maxSpeed",
+    "minDamage",
+    "maxDamage",
+    "minTMM",
+    "maxTMM",
+    // "minDamageShort",
+    // "maxDamageShort",
+    // "minDamageMedium",
+    // "maxDamageMedium",
+    // "minDamageLong",
+    // "maxDamageLong",
 ];
+
 const sizeParams = [
     {name: "Light", id: 1},
     {name: "Medium", id: 2},
@@ -184,41 +196,65 @@ template.innerHTML = `
                         <input type="number" id="maxPD" value="3150" min="2000" max="3300" slot="content"/>
                     </vpl-label>
                 </div>
-                <vpl-label prefix="Sizes: ">
-                    <div id="sizesContainer"  slot="content" class="spacedRow">
-                        <vpl-label prefix="1 (Light)">
-                            <input type="checkbox" id="sizeLight" checked="true" slot="content"/>
-                        </vpl-label>
-                        <vpl-label prefix="2 (Medium)">
-                            <input type="checkbox" id="sizeMedium" checked="true" slot="content"/>
-                        </vpl-label>
-                        <vpl-label prefix="3 (Heavy)">
-                            <input type="checkbox" id="sizeHeavy" checked="true" slot="content"/>
-                        </vpl-label>
-                        <vpl-label prefix="4 (Assault)">
-                            <input type="checkbox" id="sizeAssault" checked="true" slot="content"/>
-                        </vpl-label>
-                    </div>
-                </vpl-label>
-                <vpl-label prefix="Tech Levels: ">
-                    <div id="techLevelContainer"  slot="content" class="spacedRow">
-                        <vpl-label prefix="Inner Sphere">
-                            <input type="checkbox" id="techLevelInnerSphere" checked="true" slot="content"/>
-                        </vpl-label>
-                        <vpl-label prefix="Clan">
-                            <input type="checkbox" id="techLevelClan" checked="true" slot="content"/>
-                        </vpl-label>
-                        <vpl-label prefix="Mixed">
-                            <input type="checkbox" id="techLevelMixed" checked="true" slot="content"/>
-                        </vpl-label>
-                        <vpl-label prefix="Primitive">
-                            <input type="checkbox" id="techLevelPrimitive" checked="true" slot="content"/>
-                        </vpl-label>
-                    </div>
-                </vpl-label>
-                <vpl-label prefix="Specials:">
-                    <input type="text" id="specials" slot="content"></input>
-                </vpl-label>
+                <div class="spacedRow">
+                    <vpl-label prefix="Sizes: ">
+                        <div id="sizesContainer"  slot="content" class="spacedRow">
+                            <vpl-label prefix="1 (Light)">
+                                <input type="checkbox" id="sizeLight" checked="true" slot="content"/>
+                            </vpl-label>
+                            <vpl-label prefix="2 (Medium)">
+                                <input type="checkbox" id="sizeMedium" checked="true" slot="content"/>
+                            </vpl-label>
+                            <vpl-label prefix="3 (Heavy)">
+                                <input type="checkbox" id="sizeHeavy" checked="true" slot="content"/>
+                            </vpl-label>
+                            <vpl-label prefix="4 (Assault)">
+                                <input type="checkbox" id="sizeAssault" checked="true" slot="content"/>
+                            </vpl-label>
+                        </div>
+                    </vpl-label>
+                    <vpl-label prefix="Min Speed">
+                        <input type="number" id="minSpeed" value="0" min="0" max="100" slot="content"/>
+                    </vpl-label>
+                    <vpl-label prefix="Max Speed">
+                        <input type="number" id="maxSpeed" value="100" min="0" max="100" slot="content"/>
+                    </vpl-label>
+                </div>
+                <div class="spacedRow">
+                    <vpl-label prefix="Tech Levels: ">
+                        <div id="techLevelContainer"  slot="content" class="spacedRow">
+                            <vpl-label prefix="Inner Sphere">
+                                <input type="checkbox" id="techLevelInnerSphere" checked="true" slot="content"/>
+                            </vpl-label>
+                            <vpl-label prefix="Clan">
+                                <input type="checkbox" id="techLevelClan" checked="true" slot="content"/>
+                            </vpl-label>
+                            <vpl-label prefix="Mixed">
+                                <input type="checkbox" id="techLevelMixed" checked="true" slot="content"/>
+                            </vpl-label>
+                            <vpl-label prefix="Primitive">
+                                <input type="checkbox" id="techLevelPrimitive" checked="true" slot="content"/>
+                            </vpl-label>
+                        </div>
+                    </vpl-label>
+                    <vpl-label prefix="Min Damage">
+                        <input type="number" id="minDamage" value="0" min="0" max="100" slot="content"/>
+                    </vpl-label>
+                    <vpl-label prefix="Max Damage">
+                        <input type="number" id="maxDamage" value="100" min="0" max="100" slot="content"/>
+                    </vpl-label>
+                </div>
+                <div class="spacedRow">
+                    <vpl-label prefix="Specials:">
+                        <input type="text" id="specials" slot="content"></input>
+                    </vpl-label>
+                    <vpl-label prefix="Min TMM">
+                        <input type="number" id="minTMM" value="0" min="0" max="5" slot="content"/>
+                    </vpl-label>
+                    <vpl-label prefix="Max TMM">
+                        <input type="number" id="maxTMM" value="6" min="1" max="6" slot="content"/>
+                    </vpl-label>
+                </div>
             </div>
             <div id="advancedButtonsContainer" class="spacedColumn">
                 <button id="advancedToggle" class="layeredImageContainer">
@@ -290,6 +326,12 @@ export default class searchPage extends HTMLElement {
         this.sizeMediumElem = this.shadowRoot.getElementById("sizeMedium");
         this.sizeHeavyElem = this.shadowRoot.getElementById("sizeHeavy");
         this.sizeAssaultElem = this.shadowRoot.getElementById("sizeAssault");
+        this.minSpeedElem = this.shadowRoot.getElementById("minSpeed");
+        this.maxSpeedElem = this.shadowRoot.getElementById("maxSpeed");
+        this.minDamageElem = this.shadowRoot.getElementById("minDamage");
+        this.maxDamageElem = this.shadowRoot.getElementById("maxDamage");
+        this.minTMMElem = this.shadowRoot.getElementById("minTMM");
+        this.maxTMMElem = this.shadowRoot.getElementById("maxTMM");
         this.techLevelInnerSphereElem = this.shadowRoot.getElementById("techLevelInnerSphere");
         this.techLevelClanElem = this.shadowRoot.getElementById("techLevelClan");
         this.techLevelMixedElem = this.shadowRoot.getElementById("techLevelMixed");
