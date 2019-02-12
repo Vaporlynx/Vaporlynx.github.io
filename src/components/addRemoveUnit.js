@@ -3,7 +3,7 @@ template.innerHTML = `
     <style>
         :host {
             display: flex;
-            width: 11em;
+            width: 8em;
             height: 3em;  
             background-color: var(--nonInteractiveElementBackgroundColor);
             color: var(--nonInteractiveElementBackgroundFontColor);
@@ -18,17 +18,17 @@ template.innerHTML = `
         }
 
         div {
-            width: 48px;
-            height: 48px;
+            width: 2em;
+            height: 2em;
             background-color: var(--interactiveElementBackgroundColor);
-            font-size: 48px;
+            font-size: 2em;
         }
         div:hover {
             background-color: var(--interactiveElementHoverBackgroundColor);
         }
 
         #mech {
-            width: 40px;
+            width: 1.6em;
         }
     </style>
 
