@@ -3,12 +3,15 @@ template.innerHTML = `
     <style>
         :host {
             display: flex;
+            clip-path: polygon(0 0, calc(100% - var(--bevelOffset)) 0, 100% var(--bevelOffset), 100% 100%, var(--bevelOffset) 100%, 0 calc(100% - var(--bevelOffset)));
+            padding: calc(var(--bevelOffset) / 2);
             --activePipColor: var(--interactiveElementBackgroundColorActive);
             --inactivePipColor: var(--interactiveElementBackgroundColor);
             --hoverPipColor: var(--interactiveElementHoverBackgroundColor);
             --pipIndent: .2em;
             --pipHeight: 1em;
             --pipWidth: 1em;
+            --bevelOffset: .5em;
         }
 
         .disabled {
@@ -33,8 +36,15 @@ template.innerHTML = `
         .checked {
             background-color: var(--activePipColor);
         }
+
+        img {
+            height: 0.8em;
+            user-select: none;
+        }
     </style>
+    <img src="/assets/minus.svg" id="minusGuide"></img>
     <div id="pipsContainer"></div>
+    <img src="/assets/plus.svg" id="plusGuide"></img>
 `;
 
 export default class pips extends HTMLElement {
@@ -52,6 +62,9 @@ export default class pips extends HTMLElement {
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
 
         this.pipsContainerElem = this.shadowRoot.getElementById("pipsContainer");
+
+        this.minusGuideElem = this.shadowRoot.getElementById("minusGuide");
+        this.plusGuideElem = this.shadowRoot.getElementById("plusGuide");
 
         this._totalPips = 0;
         this._mode = "individual";
@@ -77,6 +90,8 @@ export default class pips extends HTMLElement {
                 const pip = document.createElement("div");
                 pip.classList.add("pip");
                 if (this.mode === "individual") {
+                    this.minusGuideElem.style.display = "none";
+                    this.plusGuideElem.style.display = "none";
                     pip.addEventListener("click", event => {
                         const index = [...this.pipsContainerElem.children].indexOf(event.target) + 1;
                         const offset = this.marked === index ? -1 : 0;
@@ -85,6 +100,8 @@ export default class pips extends HTMLElement {
                     });
                 }
                 else {
+                    this.minusGuideElem.style.display = "inherit";
+                    this.plusGuideElem.style.display = "inherit";
                     pip.classList.add("disabled");
                 }
                 pip.checked = true;
@@ -127,6 +144,12 @@ export default class pips extends HTMLElement {
             // Trigger rebuild if needed
             if (this.totalPips !== 0) {
                 this.totalPips = this.totalPips;
+            }
+            if (val === "individual") {
+                this.style.backgroundColor = "inherit";
+            }
+            else {
+                this.style.backgroundColor = "var(--nonInteractiveElement3BackgroundColor)";
             }
         }
     }

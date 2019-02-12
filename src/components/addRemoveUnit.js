@@ -3,8 +3,8 @@ template.innerHTML = `
     <style>
         :host {
             display: flex;
-            width: 160px;
-            height: 50px;  
+            width: 11em;
+            height: 3em;  
             background-color: var(--nonInteractiveElementBackgroundColor);
             color: var(--nonInteractiveElementBackgroundFontColor);
             position: absolute;

@@ -214,10 +214,10 @@ template.innerHTML = `
                         </div>
                     </vpl-label>
                     <vpl-label prefix="Min Speed">
-                        <input type="number" id="minSpeed" value="0" min="0" max="100" slot="content"/>
+                        <input type="number" id="minSpeed" value="0" min="0" max="50" slot="content"/>
                     </vpl-label>
                     <vpl-label prefix="Max Speed">
-                        <input type="number" id="maxSpeed" value="100" min="0" max="100" slot="content"/>
+                        <input type="number" id="maxSpeed" value="50" min="0" max="50" slot="content"/>
                     </vpl-label>
                 </div>
                 <div class="spacedRow">
@@ -238,10 +238,10 @@ template.innerHTML = `
                         </div>
                     </vpl-label>
                     <vpl-label prefix="Min Damage">
-                        <input type="number" id="minDamage" value="0" min="0" max="100" slot="content"/>
+                        <input type="number" id="minDamage" value="0" min="0" max="20" slot="content"/>
                     </vpl-label>
                     <vpl-label prefix="Max Damage">
-                        <input type="number" id="maxDamage" value="100" min="0" max="100" slot="content"/>
+                        <input type="number" id="maxDamage" value="20" min="0" max="20" slot="content"/>
                     </vpl-label>
                 </div>
                 <div class="spacedRow">
