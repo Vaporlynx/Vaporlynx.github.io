@@ -116,7 +116,6 @@ template.innerHTML = `
         }
 
         .cardContainer {
-            <!--7:5 width to height-->
             width: 100vw;
             height: 71.42vw;
             position: relative;
@@ -367,9 +366,6 @@ export default class searchPage extends HTMLElement {
 
     connectedCallback() {
         const params = urlHelper.getParams();
-        if (params.advancedParams && params.advancedParams.length) {
-            this.expandableControlsElem.classList.toggle("hidden", false);
-        }
         if (params.unitName) {
             this.searchUnit(this.unitNameElem.value = urlHelper.consumeParams(["unitName"]).unitName);
         }
@@ -390,6 +386,7 @@ export default class searchPage extends HTMLElement {
             const params = {
                 unitName,
             };
+            urlHelper.setParams(params);
 
             for (const key of advancedParams) {
                 switch (key) {
@@ -415,7 +412,6 @@ export default class searchPage extends HTMLElement {
                     default: params[key] = this[`${key}Elem`].value; break;
                 }
             }
-            urlHelper.setParams(params);
             const unParsed = await window.fetch(`/sw-units?${Object.keys(params).map(key => `${key.toLowerCase()}=${params[key]}`).join("&")}`);
             this.spinnerElem.classList.remove("show");
             this.buildCards(JSON.parse(await unParsed.text()), this.requestId);

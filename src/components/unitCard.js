@@ -23,6 +23,13 @@ template.innerHTML = `
             height: 100%;
             width: 100%;
         }
+        #cardBody > div:not(:last-child) {
+            margin-bottom: 10px;
+        }
+
+        vpl-label {
+            align-items: center;
+        }
     
         .spacedRow {
             display: flex;
@@ -38,7 +45,6 @@ template.innerHTML = `
             background-color: var(--nonInteractiveElement2BackgroundColor);
             clip-path: polygon(0 0, calc(100% - var(--bevelOffset)) 0, 100% var(--bevelOffset), 100% 100%, var(--bevelOffset) 100%, 0 calc(100% - var(--bevelOffset)));
             padding: calc(var(--bevelOffset) / 2);
-            margin-bottom: 10px;
         }
 
         #header {
@@ -48,7 +54,13 @@ template.innerHTML = `
             font-size: 125%;
             align-items: center;
         }
-
+        #header > * {
+            height: 100%;
+            box-sizing: border-box;
+        }
+        #header > *:not(:last-child) {
+            margin-right: 10px;
+        }
         #upperDetails {
             height: 40%;
             font-size: 130%;
@@ -57,9 +69,12 @@ template.innerHTML = `
         #mainDetails {
             width: 70%;
         }
-        #mainDetails div {
+        #mainDetails > div {
             height: 30%;
             align-items: center;
+        }
+        #mainDetails > div:not(:last-child) {
+            margin-bottom: 10px;
         }
 
         #lowerDetails {
@@ -71,7 +86,6 @@ template.innerHTML = `
             width: 30%;
             object-fit: contain;
             margin-left: 10px;
-            padding-bottom: 15px;
         }
 
         #attributes {
@@ -104,6 +118,7 @@ template.innerHTML = `
         #special {
             height: 60%;
             word-wrap: break-word;
+            margin-top: 10px;
         }
 
         #criticalsContainer {
@@ -124,7 +139,7 @@ template.innerHTML = `
         <div id="header" class="spacedRow">
             <div id="name" class="spacedColumn bevel">
             </div>
-            <vpl-label prefix="Note:" id="noteContainer" class="bevel hidden">
+            <vpl-label prefix="" id="noteContainer" class="bevel hidden">
                 <div id="note" slot="content"></div>
             </vpl-label>
             <vpl-label prefix="PV:" id="pvContainer" class="bevel">
