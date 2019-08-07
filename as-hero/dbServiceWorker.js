@@ -230,6 +230,40 @@ const searchUnits = url => {
   });
 };
 
+const fetchAsset = request => {
+  return new Promise(async (resolve, reject) => {
+    let resolved = false;
+
+    const cachePromise = caches.match(request).then(cachedData => {
+      if (!resolved) {
+        resolved = true;
+        resolve(cachedData);
+      }
+    }).catch(err => {
+      // swallow error
+    }); 
+
+    fetch(request).then(response => {
+      if (!resolved) {
+        resolved = true;
+        resolve(response);
+        caches.open("urlCache").then(cache => {
+          cache.put(request, response.clone());
+        }).catch(err => {
+          // Swallow error
+        });
+      }
+    }).catch(err => {
+      // Only reject if we errored and the cache has no match
+      cachePromise.then(cachedData => {
+        if (!cachedData) {
+          reject(err);
+        }
+      });
+    })
+  });
+};
+
 unitDBConnection.onsuccess = async event => {
   self.clients.claim();
   unitDB = event.target.result;
@@ -242,5 +276,8 @@ self.addEventListener("fetch", event => {
   }
   else if (url.pathname === "/sw-load-status") {
     event.respondWith(new Response(`${!loading ? 1 : loadedTypes.length / unitTypes.length}`));
+  }
+  else if (url.pathname.includes("/as-hero/")) {
+    event.respondWith(fetchAsset(event.request));
   }
 });
