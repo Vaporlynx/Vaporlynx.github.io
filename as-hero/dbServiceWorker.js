@@ -235,7 +235,7 @@ const fetchAsset = request => {
     let resolved = false;
 
     const cachePromise = caches.match(request).then(cachedData => {
-      if (!resolved) {
+      if (!resolved && cachedData) {
         resolved = true;
         resolve(cachedData);
       }
@@ -247,11 +247,13 @@ const fetchAsset = request => {
       if (!resolved) {
         resolved = true;
         resolve(response);
-        caches.open("urlCache").then(cache => {
-          cache.put(request, response.clone());
-        }).catch(err => {
-          // Swallow error
-        });
+        if (response.status === 200) {
+          caches.open("urlCache").then(cache => {
+            cache.put(request, response.clone());
+          }).catch(err => {
+            // Swallow error
+          });
+        }
       }
     }).catch(err => {
       // Only reject if we errored and the cache has no match
