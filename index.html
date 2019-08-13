@@ -10,6 +10,7 @@
     body {
       display: flex;
       flex-direction: column;
+      background-color: #f1efec;
     }
 
     #emailImage {
@@ -20,29 +21,47 @@
     .imageContainer {
       display: flex;
       height: 20em;
+      overflow: auto;
     }
 
     .imageContainer > img {
       height: 100%;
-      margin-left: 1em;
+      margin-right: 1em;
+    }
+
+    h2 {
+      font-weight: normal;
+    }
+
+    a {
+      color: black;
+    }
+
+    hr {
+      width: 64vw;
     }
   </style>
     <h1>Here are a number of projects I have worked on that I can show off.</h1>
     <h2><a href="https://www.animaljam.com/download">Animal Jam Desktop</a> – This is Wildwork's Animal Jam flash client wrapped up in Electron.</h2>  This should allow players to continue to play Animal Jam long after flash is no longer available in web browsers.  I programmed most of the logic in the game client, including the login flow, website interaction, as well as the interaction with Animaljam..com.
+    <hr>
     <h2><a href="https://drive.google.com/uc?id=1g_2BAj_WjVZ9FHlQMfcEHYKNUCk3eTKm&export=download">Ballzilla</a> – This was created for a game jam with coworkers in a single work day (8~ hours).</h2>I programmed all of the game logic, as well as asset wrangling and merging multiple portions of the city into a single level.  Controls with a keyboard are wasd to move, space to jump, left control to roar. If using an xbox controller left joystick to move, a to jump, and b to roar.
     <div class="imageContainer">
-        <img src="./assets/ballzilla1.JPG">
-        <img src="./assets/ballzilla2.JPG">
-      </div>
+      <img src="./assets/ballzilla1.JPG">
+      <img src="./assets/ballzilla2.JPG">
+    </div>
+    <hr>
     <h2><a href="/as-hero/index.html">AS-Hero</a> – I created this as a game aid for table top war game I enjoy as a hobby.</h2> It allows you to look up stats from any of the several thousand units in it's internal database.  It also allows you to group them into an army and track damage and status effects for use in gameplay.  It is written in javascript with modern frameworks and APIs.  Its design is largely based off of http://masterunitlist.info/
     <div class="imageContainer">
       <img src="./assets/cap1.gif">
       <img src="./assets/cap2.gif">
     </div>
+    <hr>
     <h2><a href="https://drive.google.com/uc?id=1LKjqQ2yX1NZacvUIiJ0SwDlNMRyuUAcV&export=download">BTTC</a> – This has been a hobby project I have been working on for many years.</h2>It is a recreation of Mechcommander, a late 90s RTS in Unreal engine 4.  With the exception of some of the art assets, everything was created by me.  Controls are wasd to move, q and e as well as holding middle mouse and dragging the mouse rotate the camera.  The mouse wheel controls altitude.  Left click handles selection, right click handles issuing orders to units.
     <div class="imageContainer">
-        <img src="./assets/bttc1.jpg">
-        <img src="./assets/bttc2.jpg">
-      </div>
+      <img src="./assets/bttc1.jpg">
+      <img src="./assets/bttc2.jpg">
+    </div>
+    <hr>
+    <a href="https://github.com/Vaporlynx?tab=repositories">Click here to see some projects I have contributed code to</a>
 </body>
 </html>
