@@ -12,7 +12,7 @@ const handleNavigation = () => {
     const params = urlHelper.getParams();
     let currentPage = "";
     if (pageContainerElem.hasChildNodes()) {
-        currentPage = pageContainerElem.firstChild.tagName.toLowerCase().split("-")[0];
+        currentPage = pageContainerElem.firstChild.tagName.toLowerCase().replace("-page", "");
     }
     if (currentPage !== params.page) {
         while (pageContainerElem.hasChildNodes()) {

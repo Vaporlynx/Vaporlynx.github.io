@@ -101,6 +101,8 @@ unitDBConnection.onupgradeneeded = event => {
             techLevel: datum.meta.tl,
             productionDate: datum.meta.pd,
           },
+          weapons: datum.wp || {},
+          heatsinks: datum.hs || 10,
         };
         await setUnit(unit.type, unit);
       }
@@ -121,7 +123,7 @@ const searchUnits = url => {
         searchParams[key] = value.split(",").map(i => parseInt(i));
       }
       else if (key === "specials") {
-        searchParams[key] = value.split(",");
+        searchParams[key] = value.toLowerCase().split(",");
       }
       else {
         searchParams[key] = value;
@@ -132,13 +134,11 @@ const searchUnits = url => {
     let unitsSearched = 0;
     let results = [];
 
-    // TODO: this should probably be pulled out into a separate function that suggests names as you type
-    // const matchedNames = searchParams.unitName && searchParams.unitName.length ? fuse.search(searchParams.unitName) : [];
     for (const type of searchParams.types || unitTypes) {
       const units = await getUnits(type);
       for (const unit of units) {
         unitsSearched++;
-        // TODO: these if statements are very similar.  Look at programatic way to organize them, maintain maintainability 
+        // TODO: these if statements are very similar.  Look at programatic way to organize them, maintain maintainability
         let valid = true;
         const parsedMove = unit.movement.replace(/[\\"a-z]/ig, "").split("/").map(i => parseInt(i));
         const parsedDamage = [unit.damage.short, unit.damage.medium, unit.damage.long];
@@ -241,7 +241,7 @@ const fetchAsset = request => {
       }
     }).catch(err => {
       // swallow error
-    }); 
+    });
 
     fetch(request).then(response => {
       if (!resolved) {
@@ -262,7 +262,7 @@ const fetchAsset = request => {
           reject(err);
         }
       });
-    })
+    });
   });
 };
 
@@ -271,7 +271,7 @@ unitDBConnection.onsuccess = async event => {
   unitDB = event.target.result;
 };
 
-self.addEventListener("fetch", event => { 
+self.addEventListener("fetch", event => {
   const url = new URL(event.request.url.toLowerCase());
   if (url.pathname === "/sw-units") {
     event.respondWith(searchUnits(url));

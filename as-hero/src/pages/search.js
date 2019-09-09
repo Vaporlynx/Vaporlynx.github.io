@@ -1,6 +1,5 @@
 import * as urlHelper from "../../src/urlHelper.js";
 import * as unitHelper from "../../src/unitHelper.js";
-// TODO: decide if navigation should be handled by the individual panels, or if it should be hoisted up to the index
 
 const advancedParams = [
     "minPV",
@@ -163,6 +162,10 @@ template.innerHTML = `
         .hidden {
             display: none;
         }
+
+        #modeToggle {
+            justify-self: flex-end;
+        }
     </style>
     <div id="controls" class="spacedColumn">
         <div id="basicControls" class="spacedRow">
@@ -178,6 +181,7 @@ template.innerHTML = `
                 <div id="pvTotal" slot="content">0</div>
             </vpl-label>
             <button id="clear">Clear Roster</button>
+            <button id="modeToggle" class="hidden">Gear</button>
         </div>
         <div id="advancedControls" class="spacedRow">
             <div id="expandableControls" class="spacedColumn hidden">
@@ -281,6 +285,10 @@ export default class searchPage extends HTMLElement {
     constructor() {
         super();
 
+        this.unitCard = "unit-card";
+        this.searchCounterpart = "gear-search";
+        this.rosterPage = "roster";
+
         this.requestId = 0;
 
         this.attachShadow({mode: "open"}).appendChild(this.constructor.template.content.cloneNode(true));
@@ -293,7 +301,14 @@ export default class searchPage extends HTMLElement {
         this.rosterElem = this.shadowRoot.getElementById("roster");
         this.rosterElem.addEventListener("pointerdown", event => {
             urlHelper.setParams({
-                page: "roster",
+                page: this.rosterPage,
+            });
+        });
+
+        this.modeToggleElem = this.shadowRoot.getElementById("modeToggle");
+        this.modeToggleElem.addEventListener("pointerdown", event => {
+            urlHelper.setParams({
+                page: this.searchCounterpart,
             });
         });
 
@@ -437,7 +452,7 @@ export default class searchPage extends HTMLElement {
     }
 
     buildCard(unit) {
-        const card = document.createElement("unit-card");
+        const card = document.createElement(this.unitCard);
         card.data = unit;
         const addRemoveUnitsElem = document.createElement("vpl-add-remove-units");
         addRemoveUnitsElem.addEventListener("add", event => {
