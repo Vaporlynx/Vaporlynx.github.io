@@ -1,0 +1,3 @@
+[submodule "as-hero"]
+	path = as-hero
+	url = git@github.com:Vaporlynx/as-hero.git
